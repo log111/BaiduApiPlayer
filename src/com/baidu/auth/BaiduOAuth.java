@@ -1,8 +1,5 @@
 package com.baidu.auth;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +21,7 @@ public class BaiduOAuth {
 	private static final String TAG = "BaiduOAuth";
 	
 	private static final String openAPIURL = "https://openapi.baidu.com";
-	private static final String oauthURL = openAPIURL + "/oauth/2.0";	
-	private static final String DATA_SCHEME = "com.baidu.auth.BaiduOAuth";
+	private static final String oauthURL = openAPIURL + "/oauth/2.0";
 	
 	private Context mCtx;
 	private OAuthReceiver mReceiver;
@@ -130,73 +126,82 @@ public class BaiduOAuth {
 		mCtx.startActivity(i);
 	}
 	
+	public static interface TokenCallback{
+		void onSuccess(String access_token, 
+				int expires_in, 
+				String refresh_token,
+				String scope,
+				String session_key,
+				String session_secret);
+		void onFail(String errCode, String errMsg);
+	}
+	
 	public void getAccessTokenByAuthCode(String apiKey,
 			String secretKey, 
 			String authCode,
 			String redirectUrl,
-			Callback cb)
+			TokenCallback cb)
 	{
 		Bundle params = new Bundle();
 		params.putString("client_id", apiKey);
 		params.putString("grant_type", "authorization_code");
+		params.putString("client_secret", secretKey);
 		params.putString("redirect_uri", redirectUrl);
 		params.putString("code", authCode);
 		
 		String tokenUrl = oauthURL + "/token";
-		URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
-		
-		List<Callback> cbList = mCallbackMap.get("getAccessTokenByAuthCode");
+		final URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
+		/*
+		String api = "getAccessTokenByAuthCode";
+		List<Callback> cbList = mCallbackMap.get(api);
 		if(null == cbList){
-			mCallbackMap.put("getAccessTokenByAuthCode", new ArrayList<Callback>());
-			cbList = mCallbackMap.get("getAuthCode");
+			mCallbackMap.put(api, new ArrayList<Callback>());
+			cbList = mCallbackMap.get(api);
 		}
 		cbList.add(cb);
+		*/
+		final TokenCallback tcb = cb;
+		AuthTask t = new AuthTask(requestUrl, new AuthTask.Callback() {
+			
+			@Override
+			public void onSuccess(JSONObject ret) {
+				try{
+					String access_token = ret.has("access_token") 
+							? ret.getString("access_token") : "";
+					int expires_in = ret.has("expires_in") 
+							? ret.getInt("expires_in") : -1;
+					String refresh_token = ret.has("refresh_token") 
+							? ret.getString("refresh_token") : "";
+					String scope = ret.has("scope") 
+							? ret.getString("scope") : "";
+					String session_key = ret.has("session_key") 
+							? ret.getString("session_key") : "";
+					String session_secret = ret.has("session_secret")
+							? ret.getString("session_secret") : "";
+					
+					tcb.onSuccess(access_token, 
+							expires_in, 
+							refresh_token, 
+							scope, 
+							session_key, 
+							session_secret);
+				}catch(JSONException e){//unless server returns a bad reply, which is impossible.
+					e.printStackTrace();
+				}
+			}
+			
+			@Override
+			public void onFail(JSONObject err, Exception localException) {
+				try{
+					String error = err.has("error") ? err.getString("error") : "";
+					String errDesp = err.has("error_description") ? err.getString("error_description") : "";
+					tcb.onFail(error, errDesp);
+				}catch(JSONException e){//unless server returns a bad reply, which is impossible.
+					e.printStackTrace();
+				}
+			}
+		});
+		t.execute((Void)null);
 		
-		HttpURLConnection conn = null;
-		try{
-			conn = (HttpURLConnection)requestUrl.openConnection();
-			conn.setRequestMethod("GET");
-			conn.setDoInput(true);
-			int respCode = conn.getResponseCode();
-			InputStreamReader reader = null;
-			
-			boolean isError = false;
-			if(HttpURLConnection.HTTP_OK == respCode){
-				reader = new InputStreamReader(conn.getInputStream());
-				isError = true;
-			}else{
-				reader = new InputStreamReader(conn.getErrorStream());
-			}
-			int bufLen = 2048;
-			char[] buffer = new char[bufLen];
-			StringBuilder sb = new StringBuilder();
-			int len = reader.read(buffer, 0, bufLen);
-			if(len > 0){
-				sb.append(buffer, 0, len);
-				len = reader.read(buffer, 0, bufLen);
-			}
-			reader.close();
-			
-			try{
-				JSONObject obj = new JSONObject(sb.toString());
-				Log.d(TAG, obj.toString());
-			}catch(JSONException e){
-				e.printStackTrace();
-			}
-			//json body
-		}catch(IOException e){
-			e.printStackTrace();
-		}finally{
-			if(conn != null){
-				conn.disconnect();
-			}
-		}
-		Intent i = new Intent("getAccessTokenByAuthCode")
-				.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-				.setComponent(new ComponentName(mCtx, AuthDialog.class))
-				.putExtra(BAIDU_OAUTH_INTENT_SCHEME, mIntentScheme)
-				.putExtra(AuthDialog.REDIRECT_URL, redirectUrl)
-				.putExtra(AuthDialog.REQUEST_URL, requestUrl.toString());
-		mCtx.startActivity(i);
 	}
 }

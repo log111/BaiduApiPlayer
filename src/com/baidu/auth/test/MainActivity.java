@@ -18,7 +18,7 @@ public class MainActivity extends Activity {
 	private Button getTokenButton;
 	private BaiduOAuth mOAuth;
 	
-	private String authCode;
+	private String mAuthCode;
 	
 	private void getAuthCode(){
 		
@@ -36,6 +36,7 @@ public class MainActivity extends Activity {
 					@Override
 					public void onSuccess(String authCode) {
 						Log.d(TAG, "authorized code: " + authCode);
+						mAuthCode = authCode;
 						
 						getTokenButton.setEnabled(true);
 						
@@ -57,12 +58,17 @@ public class MainActivity extends Activity {
 		mOAuth.getAccessTokenByAuthCode(
 				apiKey, 
 				secretKey, 
-				authCode, 
-				redirectUrl, new BaiduOAuth.Callback(){
+				mAuthCode, 
+				redirectUrl, new BaiduOAuth.TokenCallback(){
 
 					@Override
-					public void onSuccess(String accessToken) {
-						Log.d(TAG, "token: " + accessToken);
+					public void onSuccess(String access_token, 
+							int expires_in, 
+							String refresh_token,
+							String scope,
+							String session_key,
+							String session_secret){
+						Log.d(TAG, "token: " + access_token);
 						getTokenButton.setEnabled(false);
 					}
 
