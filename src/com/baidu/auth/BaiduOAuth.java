@@ -5,9 +5,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +30,7 @@ public class BaiduOAuth {
 	private Context mCtx;
 	private OAuthReceiver mReceiver;
 	private String mIntentScheme;
-	private Map<String, List<Callback>> mCallbackMap = null;
+	private ConcurrentMap<String, List<Callback>> mCallbackMap = null;
 	
 	public static final String BAIDU_OAUTH_INTENT_SCHEME = "intentScheme";
 	
@@ -44,12 +44,14 @@ public class BaiduOAuth {
 		
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
-			
+			Log.d(TAG, "broadcast received");
 			boolean isSuccess = intent.getBooleanExtra("isSuccess", false);
 			
 			String api = intent.getStringExtra("api");
+			Log.d(TAG, "api="+api);
 			if("getAuthCode".equals(api)){
 				List<Callback> cbList = mOauth.mCallbackMap.get(api);
+				Log.d(TAG, "size=" + cbList.size());
 				
 				if(isSuccess){
 					String authCode = intent.getStringExtra("authCode");
@@ -67,8 +69,8 @@ public class BaiduOAuth {
 						cb.onFail(errCode, errMsg);
 					}
 				}
+				mOauth.mCallbackMap.remove(api);
 			}
-			mOauth.mCallbackMap.remove(api);
 		}
 		
 	}
@@ -79,7 +81,7 @@ public class BaiduOAuth {
 	}
 	
 	public BaiduOAuth(Context ctx){
-		mCallbackMap = new HashMap<String, List<Callback>>();
+		mCallbackMap = new ConcurrentHashMap<String, List<Callback>>();
 		mCtx = ctx.getApplicationContext();
 		mReceiver = new OAuthReceiver(this);
 		mIntentScheme = toString();
@@ -100,8 +102,6 @@ public class BaiduOAuth {
 	
 	public void getAuthCode(String apiKey, 
 			String redirectUrl, 
-			String successUrl, 
-			String failUrl, 
 			Callback cb)
 	{
 		Bundle params = new Bundle();

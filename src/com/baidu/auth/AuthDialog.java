@@ -25,7 +25,7 @@ public class AuthDialog extends Activity{
 		super.onCreate(savedInstanceState);
 		
 		Intent intent = getIntent();
-		//mMethod = intent.getAction();
+		mMethod = intent.getAction();
 		String redirectUrl = intent.getStringExtra(REDIRECT_URL);
 		String requestUrl =  intent.getStringExtra(REQUEST_URL);
 		String intentScheme = intent.getStringExtra(BaiduOAuth.BAIDU_OAUTH_INTENT_SCHEME);
@@ -97,9 +97,9 @@ public class AuthDialog extends Activity{
 	    					  .putExtra("error", error)
 	    					  .putExtra("errDesp", errDesp);
 		            }
-	        		ctx.sendBroadcast(intent);
-	        		AuthDialog.this.finish();
 	        	}
+        		ctx.sendBroadcast(intent);
+        		AuthDialog.this.finish();
 			}
             return false;
         }

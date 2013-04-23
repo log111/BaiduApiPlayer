@@ -1,4 +1,4 @@
-package com.example.apitester;
+package com.baidu.auth.test;
 
 import android.util.Log;
 import android.webkit.WebView;
