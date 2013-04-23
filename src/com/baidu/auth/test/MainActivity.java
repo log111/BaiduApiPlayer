@@ -23,10 +23,7 @@ public class MainActivity extends Activity {
 	private void getAuthCode(){
 		
 		final String apiKey = getString(R.string.api_key);
-		final String secretKey = getString(R.string.secret_key);
-        final String user = getString(R.string.baidu_user);
-        final String pwd = getString(R.string.baidu_password);
-        
+		
         final String redirectUrl = "http://www.example.com/oauth_redirect";
         
         mOAuth.getAuthCode(apiKey, 
@@ -63,12 +60,13 @@ public class MainActivity extends Activity {
 
 					@Override
 					public void onSuccess(String access_token, 
-							int expires_in, 
+							long expires_in, 
 							String refresh_token,
 							String scope,
 							String session_key,
 							String session_secret){
 						Log.d(TAG, "token: " + access_token);
+						Log.d(TAG, "refresh token: " + refresh_token);
 						getTokenButton.setEnabled(false);
 					}
 

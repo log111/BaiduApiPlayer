@@ -106,6 +106,7 @@ public class BaiduOAuth {
 		params.putString("redirect_uri", redirectUrl);
 		params.putString("state", "");
 		params.putString("scope", "basic");
+		params.putString("display", "touch");
 
 		String authAPI = oauthURL + "/authorize";
 		URL requestUrl = UrlParser.encodeURLParams(authAPI, params);
@@ -128,7 +129,7 @@ public class BaiduOAuth {
 	
 	public static interface TokenCallback{
 		void onSuccess(String access_token, 
-				int expires_in, 
+				long expires_in, 
 				String refresh_token,
 				String scope,
 				String session_key,
@@ -151,15 +152,7 @@ public class BaiduOAuth {
 		
 		String tokenUrl = oauthURL + "/token";
 		final URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
-		/*
-		String api = "getAccessTokenByAuthCode";
-		List<Callback> cbList = mCallbackMap.get(api);
-		if(null == cbList){
-			mCallbackMap.put(api, new ArrayList<Callback>());
-			cbList = mCallbackMap.get(api);
-		}
-		cbList.add(cb);
-		*/
+		
 		final TokenCallback tcb = cb;
 		AuthTask t = new AuthTask(requestUrl, new AuthTask.Callback() {
 			
@@ -168,8 +161,8 @@ public class BaiduOAuth {
 				try{
 					String access_token = ret.has("access_token") 
 							? ret.getString("access_token") : "";
-					int expires_in = ret.has("expires_in") 
-							? ret.getInt("expires_in") : -1;
+					long expires_in = ret.has("expires_in") 
+							? ret.getLong("expires_in") : -1;
 					String refresh_token = ret.has("refresh_token") 
 							? ret.getString("refresh_token") : "";
 					String scope = ret.has("scope") 
