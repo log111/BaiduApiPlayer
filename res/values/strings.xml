@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="getAuthCode">Get Auth Code</string>
     <string name="getAccessToken">Get Auccess Token</string>
+    <string name="getTokenByAuthorizationCode">1: Authorization Code</string>
 
 </resources>

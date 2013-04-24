@@ -23,7 +23,8 @@ public class BaiduOAuth {
 	}
 	
 	public void getAuthCode(String apiKey, 
-			URL redirectUrl, 
+			URL redirectUrl,
+			String scope,
 			InteractionManager.Callback cb)
 	{
 		Bundle params = new Bundle();
@@ -31,7 +32,7 @@ public class BaiduOAuth {
 		params.putString("response_type", "code");
 		params.putString("redirect_uri", redirectUrl.toString());
 		params.putString("state", "");
-		params.putString("scope", "basic");
+		params.putString("scope", scope);
 		params.putString("display", "touch");
 
 		String authAPI = oauthURL + "/authorize";
@@ -108,6 +109,38 @@ public class BaiduOAuth {
 			}
 		});
 		t.runAsync();
+	}
+	
+	public void getTokenByAuthorizationCode(
+			String apiKey,
+			String secretKey,
+			URL redirectUrl,
+			String scope,
+			String state,
+			TokenCallback cb)
+	{
+		final TokenCallback myCb = cb;
+		final String clientId = apiKey;
+		final String sk = secretKey;
+		final String acceptUrl = redirectUrl.toString();
 		
+		InteractionManager.Callback mcb = new InteractionManager.Callback() {
+			
+			@Override
+			public void onSuccess(String authCode) {
+				getAccessTokenByAuthCode(clientId,
+					sk, 
+					authCode,
+					acceptUrl,
+					myCb);
+			}
+			
+			@Override
+			public void onFail(String errCode, String errMsg) {
+				myCb.onFail(errCode, errMsg);
+			}
+		};
+		
+		getAuthCode(apiKey, redirectUrl, scope, mcb);
 	}
 }

@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
 	        
 	        mOAuth.getAuthCode(apiKey, 
 	        		redirectUrl,
+	        		"basic",
 	        		new InteractionManager.Callback(){
 	
 						@Override
@@ -85,6 +86,43 @@ public class MainActivity extends Activity {
 					}			
 				});
 	}
+
+	private void getTokenByAuthorizationCode(){
+		
+		final String apiKey = getString(R.string.api_key);
+		final String secretKey = getString(R.string.secret_key);
+		try{
+			final URL redirectUrl = new URL("http://www.example.com/oauth_redirect");
+			mOAuth.getTokenByAuthorizationCode(
+					apiKey, 
+					secretKey, 
+					redirectUrl, 
+					"basic", 
+					"", 
+					new BaiduOAuth.TokenCallback(){
+
+				@Override
+				public void onSuccess(String access_token, 
+						long expires_in, 
+						String refresh_token,
+						String scope,
+						String session_key,
+						String session_secret){
+					Log.d(TAG, "token: " + access_token);
+					Log.d(TAG, "refresh token: " + refresh_token);
+					getTokenButton.setEnabled(false);
+				}
+
+				@Override
+				public void onFail(String errCode,
+						String errMsg) {
+					Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
+				}			
+			});
+        }catch(MalformedURLException e){
+			e.printStackTrace();
+		}
+	}
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +133,7 @@ public class MainActivity extends Activity {
         mOAuth = new BaiduOAuth(this);
         
         getAuthCodeButton = (Button) findViewById(R.id.getAuthCode);
+        getAuthCodeButton.setEnabled(false);
         getAuthCodeButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -110,6 +149,15 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				getToken();
+			}
+		});
+        
+        Button getTokenByAuthorizationCodeButton = (Button) findViewById(R.id.getTokenByAuthorizationCode);
+        getTokenByAuthorizationCodeButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				getTokenByAuthorizationCode();
 			}
 		});
     }

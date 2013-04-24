@@ -15,5 +15,10 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/getAccessToken" />
+    <Button
+        android:id="@+id/getTokenByAuthorizationCode"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/getTokenByAuthorizationCode" />
 
 </LinearLayout>
