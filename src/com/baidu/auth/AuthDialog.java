@@ -12,13 +12,13 @@ import android.webkit.WebViewClient;
 
 public class AuthDialog extends Activity{
 	private static final String TAG = "AuthDialog";
-	private static final Debug debug = new Debug(TAG);
+	//private static final Debug debug = new Debug(TAG);
 
 	//data received for this Activity by Intent
 	public static final String REDIRECT_URL = "redirectUrl";
 	public static final String REQUEST_URL = "requestUrl";
 	
-	private String mMethod;
+	private String mTaskId;
 	private LocalBroadcastManager mgr;
 	
 	@Override
@@ -27,10 +27,10 @@ public class AuthDialog extends Activity{
 		
 		mgr = LocalBroadcastManager.getInstance(this);
 		
-		Intent intent = getIntent();
-		mMethod = intent.getAction();
-		String redirectUrl = intent.getStringExtra(REDIRECT_URL);
-		String requestUrl =  intent.getStringExtra(REQUEST_URL);
+		Intent task = getIntent();
+		mTaskId = task.getAction();
+		String redirectUrl = task.getStringExtra(REDIRECT_URL);
+		String requestUrl =  task.getStringExtra(REQUEST_URL);
 		
 		if(UrlParser.isEmptyOrNull(requestUrl) ||
 				UrlParser.isEmptyOrNull(redirectUrl))
@@ -74,7 +74,8 @@ public class AuthDialog extends Activity{
 				Log.d(TAG, "got result");
 				
 				Bundle vals = UrlParser.decodeURLParams(url);
-				Intent intent = new Intent(mMethod)
+				Intent intent = new Intent("InteractionManager")
+							.putExtra("id", mTaskId)
 							.addFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
 	
 				if(! vals.isEmpty()){

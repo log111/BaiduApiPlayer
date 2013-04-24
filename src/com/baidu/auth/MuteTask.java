@@ -11,9 +11,9 @@ import org.json.JSONObject;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class AuthTask extends AsyncTask<Void, Void, JSONObject> {
+public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 	
-	private static final String TAG = "AuthTask";
+	private static final String TAG = "MuteTask";
 
 	private URL mUrl;
 	private Callback mCallback;
@@ -25,10 +25,14 @@ public class AuthTask extends AsyncTask<Void, Void, JSONObject> {
 		void onFail(JSONObject err, Exception localException);
 	}
 	
-	public AuthTask(URL url, Callback cb){
+	public MuteTask(URL url, Callback cb){
 		mUrl = url;
 		mCallback = cb;
 		remoteErrorOccurred = false;
+	}
+	
+	public void runAsync(){
+		execute((Void)null);
 	}
 	
 	@Override

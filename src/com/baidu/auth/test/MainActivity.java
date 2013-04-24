@@ -1,5 +1,8 @@
 package com.baidu.auth.test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.baidu.auth.BaiduOAuth;
+import com.baidu.auth.InteractionManager;
 import com.baidu.auth.R;
 
 public class MainActivity extends Activity {
@@ -24,27 +28,31 @@ public class MainActivity extends Activity {
 		
 		final String apiKey = getString(R.string.api_key);
 		
-        final String redirectUrl = "http://www.example.com/oauth_redirect";
-        
-        mOAuth.getAuthCode(apiKey, 
-        		redirectUrl,
-        		new BaiduOAuth.Callback(){
-
-					@Override
-					public void onSuccess(String authCode) {
-						Log.d(TAG, "authorized code: " + authCode);
-						mAuthCode = authCode;
-						
-						getTokenButton.setEnabled(true);
-						
-					}
-
-					@Override
-					public void onFail(String errCode, String errMsg) {
-						Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
-					}
-        		}
-        );
+		try{
+	        final URL redirectUrl = new URL("http://www.example.com/oauth_redirect");
+	        
+	        mOAuth.getAuthCode(apiKey, 
+	        		redirectUrl,
+	        		new InteractionManager.Callback(){
+	
+						@Override
+						public void onSuccess(String authCode) {
+							Log.d(TAG, "authorized code: " + authCode);
+							mAuthCode = authCode;
+							
+							getTokenButton.setEnabled(true);
+							
+						}
+	
+						@Override
+						public void onFail(String errCode, String errMsg) {
+							Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
+						}
+	        		}
+	        );
+		}catch(MalformedURLException e){
+			e.printStackTrace();
+		}
 	}
 	
 	private void getToken(){
