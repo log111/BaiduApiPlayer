@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.baidu.auth.BaiduOAuth;
-import com.example.apitester.R;
+import com.baidu.auth.R;
 
 public class MainActivity extends Activity {
 

@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class BaiduOAuth {
@@ -43,7 +44,7 @@ public class BaiduOAuth {
 			Log.d(TAG, "broadcast received");
 			boolean isSuccess = intent.getBooleanExtra("isSuccess", false);
 			
-			String api = intent.getStringExtra("api");
+			String api = intent.getAction();
 			Log.d(TAG, "api="+api);
 			if("getAuthCode".equals(api)){
 				List<Callback> cbList = mOauth.mCallbackMap.get(api);
@@ -78,20 +79,23 @@ public class BaiduOAuth {
 	
 	public BaiduOAuth(Context ctx){
 		mCallbackMap = new ConcurrentHashMap<String, List<Callback>>();
-		mCtx = ctx.getApplicationContext();
+		mCtx = ctx;
 		mReceiver = new OAuthReceiver(this);
 		mIntentScheme = toString();
 		
 		IntentFilter filter = new IntentFilter();
-		filter.addDataScheme(mIntentScheme);
-		mCtx.registerReceiver(mReceiver, filter);
+		filter.addAction("getAuthCode");
+		
+		LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(ctx);
+		mgr.registerReceiver(mReceiver, filter);
 	}
 	
 	@Override
 	protected void finalize() throws Throwable {
 		
 		if(mCtx != null && mReceiver != null){
-			mCtx.unregisterReceiver(mReceiver);
+			LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(mCtx);
+			mgr.unregisterReceiver(mReceiver);
 		}
 		super.finalize();
 	}

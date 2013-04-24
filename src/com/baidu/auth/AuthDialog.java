@@ -3,8 +3,9 @@ package com.baidu.auth;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -17,21 +18,19 @@ public class AuthDialog extends Activity{
 	public static final String REDIRECT_URL = "redirectUrl";
 	public static final String REQUEST_URL = "requestUrl";
 	
-	private Uri bdOAuthReceiverUri;
 	private String mMethod;
+	private LocalBroadcastManager mgr;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		mgr = LocalBroadcastManager.getInstance(this);
+		
 		Intent intent = getIntent();
 		mMethod = intent.getAction();
 		String redirectUrl = intent.getStringExtra(REDIRECT_URL);
 		String requestUrl =  intent.getStringExtra(REQUEST_URL);
-		String intentScheme = intent.getStringExtra(BaiduOAuth.BAIDU_OAUTH_INTENT_SCHEME);
-		bdOAuthReceiverUri = new Uri.Builder()
-					.scheme(intentScheme)
-					.build();
 		
 		if(UrlParser.isEmptyOrNull(requestUrl) ||
 				UrlParser.isEmptyOrNull(redirectUrl))
@@ -39,7 +38,7 @@ public class AuthDialog extends Activity{
 			finish();
 		}else{
 			AuthWebView authView = new AuthWebView(
-					this.getApplicationContext(), 
+					this,
 					redirectUrl);
         	setContentView(authView);
         	authView.loadUrl(requestUrl);
@@ -67,17 +66,20 @@ public class AuthDialog extends Activity{
 		
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			Log.d(TAG, "shouldOverrideUrlLoading ent");
+			Log.d(TAG, "url = " + url);
 			
-			if(url.startsWith(mRedirectUrl)){//now OAth return the access token.
+			if(url.startsWith(mRedirectUrl)){//now OAth return the result.
 			
-				Bundle vals = UrlParser.decodeURLParams(url);
-				Context ctx = view.getContext();
-	        	
-				Intent intent = new Intent()
-							.setData(bdOAuthReceiverUri)
-	        				.putExtra("api", mMethod);
+				Log.d(TAG, "got result");
 				
+				Bundle vals = UrlParser.decodeURLParams(url);
+				Intent intent = new Intent(mMethod)
+							.addFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
+	
 				if(! vals.isEmpty()){
+					Log.d(TAG, "query string not null");
+					
 	        		String error = vals.containsKey("error") 
 	        				? vals.getString("error") 
 	        				: "";
@@ -98,9 +100,11 @@ public class AuthDialog extends Activity{
 	    					  .putExtra("errDesp", errDesp);
 		            }
 	        	}
-        		ctx.sendBroadcast(intent);
-        		AuthDialog.this.finish();
+        		mgr.sendBroadcast(intent);
+        		Log.d(TAG, "intent sent");
+        		finish();//close the AuthDialog
 			}
+			Log.d(TAG, "shouldOverrideUrlLoading ret");
             return false;
         }
 	}
