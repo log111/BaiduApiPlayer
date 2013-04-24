@@ -18,11 +18,15 @@ public class MainActivity extends Activity {
 
 	private static final String TAG = "MainActivity";
 	
-	private Button getAuthCodeButton;
-	private Button getTokenButton;
 	private BaiduOAuth mOAuth;
 	
+	private Button getAuthCodeButton;
+	private Button getTokenButton;
+	private Button getTokenByAuthorizationCodeButton;
+	private Button refreshButton;
+	
 	private String mAuthCode;
+	private String mRefreshToken;
 	
 	private void getAuthCode(){
 		
@@ -76,6 +80,8 @@ public class MainActivity extends Activity {
 							String session_secret){
 						Log.d(TAG, "token: " + access_token);
 						Log.d(TAG, "refresh token: " + refresh_token);
+						
+						mRefreshToken = refresh_token;
 						getTokenButton.setEnabled(false);
 					}
 
@@ -110,7 +116,9 @@ public class MainActivity extends Activity {
 						String session_secret){
 					Log.d(TAG, "token: " + access_token);
 					Log.d(TAG, "refresh token: " + refresh_token);
-					getTokenButton.setEnabled(false);
+					
+					mRefreshToken = refresh_token;
+					refreshButton.setEnabled(true);
 				}
 
 				@Override
@@ -122,6 +130,46 @@ public class MainActivity extends Activity {
         }catch(MalformedURLException e){
 			e.printStackTrace();
 		}
+	}
+	
+	private void refreshToken(){
+		
+		final String apiKey = getString(R.string.api_key);
+		final String secretKey = getString(R.string.secret_key);
+		
+		Log.d(TAG, "ready to refresh");
+		Log.d(TAG, "refresh_token :");
+		Log.d(TAG, mRefreshToken);
+		
+		mOAuth.refreshToken(
+				apiKey, 
+				secretKey, 
+				mRefreshToken,
+				"basic", 
+				new BaiduOAuth.TokenCallback(){
+
+			@Override
+			public void onSuccess(String access_token, 
+					long expires_in, 
+					String refresh_token,
+					String scope,
+					String session_key,
+					String session_secret){
+				Log.d(TAG, "token: " + access_token);
+				Log.d(TAG, "refresh token: " + refresh_token);
+				
+				mRefreshToken = refresh_token;
+				refreshButton.setEnabled(true);
+			}
+
+			@Override
+			public void onFail(String errCode,
+					String errMsg) {
+				Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
+				
+				refreshButton.setEnabled(false);
+			}			
+		});        
 	}
 	
     @Override
@@ -152,14 +200,25 @@ public class MainActivity extends Activity {
 			}
 		});
         
-        Button getTokenByAuthorizationCodeButton = (Button) findViewById(R.id.getTokenByAuthorizationCode);
-        getTokenByAuthorizationCodeButton.setOnClickListener(new View.OnClickListener() {
+        getTokenByAuthorizationCodeButton = (Button) findViewById(R.id.getTokenByAuthorizationCode);
+        getTokenByAuthorizationCodeButton.setOnClickListener(
+        new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View arg0) {
 				getTokenByAuthorizationCode();
 			}
 		});
+        
+        refreshButton = (Button) findViewById(R.id.refreshToken);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				refreshToken();
+			}
+		});
+        refreshButton.setEnabled(false);
     }
 
 

@@ -143,4 +143,65 @@ public class BaiduOAuth {
 		
 		getAuthCode(apiKey, redirectUrl, scope, mcb);
 	}
+	
+	public void refreshToken(
+			String apiKey,
+			String secretKey,
+			String refreshToken,
+			String scope,
+			TokenCallback cb)
+	{
+		Bundle params = new Bundle();
+		params.putString("client_id", apiKey);
+		params.putString("grant_type", "refresh_token");
+		params.putString("client_secret", secretKey);
+		params.putString("refresh_token", refreshToken);
+		params.putString("scope", scope);
+		
+		String tokenUrl = oauthURL + "/token";
+		final URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
+		
+		final TokenCallback tcb = cb;
+		MuteTask t = new MuteTask(requestUrl, new MuteTask.Callback() {
+			
+			@Override
+			public void onSuccess(JSONObject ret) {
+				try{
+					String access_token = ret.has("access_token") 
+							? ret.getString("access_token") : "";
+					long expires_in = ret.has("expires_in") 
+							? ret.getLong("expires_in") : -1;
+					String refresh_token = ret.has("refresh_token") 
+							? ret.getString("refresh_token") : "";
+					String scope = ret.has("scope") 
+							? ret.getString("scope") : "";
+					String session_key = ret.has("session_key") 
+							? ret.getString("session_key") : "";
+					String session_secret = ret.has("session_secret")
+							? ret.getString("session_secret") : "";
+					
+					tcb.onSuccess(access_token, 
+							expires_in, 
+							refresh_token, 
+							scope, 
+							session_key, 
+							session_secret);
+				}catch(JSONException e){//unless server returns a bad reply, which is impossible.
+					e.printStackTrace();
+				}
+			}
+			
+			@Override
+			public void onFail(JSONObject err, Exception localException) {
+				try{
+					String error = err.has("error") ? err.getString("error") : "";
+					String errDesp = err.has("error_description") ? err.getString("error_description") : "";
+					tcb.onFail(error, errDesp);
+				}catch(JSONException e){//unless server returns a bad reply, which is impossible.
+					e.printStackTrace();
+				}
+			}
+		});
+		t.runAsync();
+	}
 }

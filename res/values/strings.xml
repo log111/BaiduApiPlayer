@@ -7,5 +7,6 @@
     <string name="getAuthCode">Get Auth Code</string>
     <string name="getAccessToken">Get Auccess Token</string>
     <string name="getTokenByAuthorizationCode">1: Authorization Code</string>
+    <string name="refreshToken">Refresh Access Token</string>
 
 </resources>

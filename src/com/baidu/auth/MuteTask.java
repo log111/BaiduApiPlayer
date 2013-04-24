@@ -40,7 +40,8 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 		HttpURLConnection conn = null;
 		try{
 			conn = (HttpURLConnection)mUrl.openConnection();
-			conn.setRequestMethod("GET");
+			//conn.setRequestMethod("GET");
+			conn.setRequestMethod("POST");
 			conn.setDoInput(true);
 			int respCode = conn.getResponseCode();
 			InputStreamReader reader = null;

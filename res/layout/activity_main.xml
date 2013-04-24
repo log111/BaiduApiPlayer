@@ -20,5 +20,10 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/getTokenByAuthorizationCode" />
+    <Button
+        android:id="@+id/refreshToken"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/refreshToken" />
 
 </LinearLayout>
