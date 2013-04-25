@@ -13,9 +13,10 @@ public class BaiduOAuth {
 	private static final String oauthURL = openAPIURL + "/oauth/2.0";
 	
 	private Context mCtx;
-		public static interface Callback{
-		void onSuccess(String result);
-		void onFail(String errCode, String errMsg);
+	
+	public static interface Callback{
+		void onSuccess(String... ret);
+		void onFail(String... ret);
 	}
 
 	public BaiduOAuth(Context ctx){
@@ -48,10 +49,10 @@ public class BaiduOAuth {
 				String scope,
 				String session_key,
 				String session_secret);
-		void onFail(String errCode, String errMsg);
+		void onFail(String... ret);
 	}
 	
-	public void getAccessTokenByAuthCode(String apiKey,
+	public void getTokenByAuthCode(String apiKey,
 			String secretKey, 
 			String authCode,
 			String redirectUrl,
@@ -111,7 +112,7 @@ public class BaiduOAuth {
 		t.runAsync();
 	}
 	
-	public void getTokenByAuthorizationCode(
+	public void validateByAuchCode(
 			String apiKey,
 			String secretKey,
 			URL redirectUrl,
@@ -127,8 +128,12 @@ public class BaiduOAuth {
 		InteractionManager.Callback mcb = new InteractionManager.Callback() {
 			
 			@Override
-			public void onSuccess(String authCode) {
-				getAccessTokenByAuthCode(clientId,
+			public void onSuccess(Bundle vals) {
+				
+				String authCode = vals.containsKey("code")
+						? vals.getString("code")
+						: "";
+				getTokenByAuthCode(clientId,
 					sk, 
 					authCode,
 					acceptUrl,
@@ -136,7 +141,7 @@ public class BaiduOAuth {
 			}
 			
 			@Override
-			public void onFail(String errCode, String errMsg) {
+			public void onFail(String errCode, String errMsg, String state) {
 				myCb.onFail(errCode, errMsg);
 			}
 		};
@@ -203,5 +208,64 @@ public class BaiduOAuth {
 			}
 		});
 		t.runAsync();
+	}
+	
+	public void validateByImplicitGrant(
+			String apiKey,
+			String secretKey,
+			URL redirectUrl,
+			String scope,
+			TokenCallback cb)
+	{
+		Bundle params = new Bundle();
+		params.putString("client_id", apiKey);
+		params.putString("client_secret", secretKey);
+		params.putString("scope", scope);
+		params.putString("redirect_uri", redirectUrl.toString());
+		params.putString("response_type", "token");
+		params.putString("display", "touch");
+		
+		String tokenUrl = oauthURL + "/authorize";
+		final URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
+		final TokenCallback tcb = cb;
+		
+		InteractionManager.Callback mcb = new InteractionManager.Callback() {
+			
+			@Override
+			public void onSuccess(Bundle ret) {
+				String access_token = ret.containsKey("access_token") 
+						? ret.getString("access_token") : "";
+				long expires_in = ret.containsKey("expires_in") 
+						? Long.parseLong(ret.getString("expires_in"))
+						: -1;
+				String refresh_token = ret.containsKey("refresh_token") 
+						? ret.getString("refresh_token") : "";
+				String scope = ret.containsKey("scope") 
+						? ret.getString("scope") : "";
+				String session_key = ret.containsKey("session_key") 
+						? ret.getString("session_key") : "";
+				String session_secret = ret.containsKey("session_secret")
+						? ret.getString("session_secret") : "";
+				
+				tcb.onSuccess(access_token, 
+						expires_in, 
+						refresh_token, 
+						scope, 
+						session_key, 
+						session_secret);
+			}
+			
+			@Override
+			public void onFail(String errCode, String errMsg, String state) {
+				tcb.onFail(errCode, errMsg, state);
+			}
+		};
+		InteractionManager
+			.getInstance(mCtx)
+			.send(requestUrl, redirectUrl, mcb);
+	}
+	
+	public void validateByCredential(){
+		//TODO
 	}
 }

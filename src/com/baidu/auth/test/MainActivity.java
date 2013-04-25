@@ -22,8 +22,9 @@ public class MainActivity extends Activity {
 	
 	private Button getAuthCodeButton;
 	private Button getTokenButton;
-	private Button getTokenByAuthorizationCodeButton;
+	private Button validateByAuchCodeButton;
 	private Button refreshButton;
+	private Button validateByImplicitGrantButton;
 	
 	private String mAuthCode;
 	private String mRefreshToken;
@@ -41,7 +42,10 @@ public class MainActivity extends Activity {
 	        		new InteractionManager.Callback(){
 	
 						@Override
-						public void onSuccess(String authCode) {
+						public void onSuccess(Bundle vals) {
+							String authCode = vals.containsKey("code")
+									? vals.getString("code")
+									: "";
 							Log.d(TAG, "authorized code: " + authCode);
 							mAuthCode = authCode;
 							
@@ -50,8 +54,13 @@ public class MainActivity extends Activity {
 						}
 	
 						@Override
-						public void onFail(String errCode, String errMsg) {
-							Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
+						public void onFail(
+								String errCode, 
+								String errMsg,
+								String state) {
+							Log.d(TAG, "errCode=" + errCode + 
+									" errMsg=" + errMsg + 
+									" state=" + state);
 						}
 	        		}
 	        );
@@ -65,7 +74,7 @@ public class MainActivity extends Activity {
 		final String secretKey = getString(R.string.secret_key);
         final String redirectUrl = "http://www.example.com/oauth_redirect";
         
-		mOAuth.getAccessTokenByAuthCode(
+		mOAuth.getTokenByAuthCode(
 				apiKey, 
 				secretKey, 
 				mAuthCode, 
@@ -86,20 +95,21 @@ public class MainActivity extends Activity {
 					}
 
 					@Override
-					public void onFail(String errCode,
-							String errMsg) {
+					public void onFail(String... ret) {
+						String errCode = ret[0];
+						String errMsg = ret[1];
 						Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
 					}			
 				});
 	}
 
-	private void getTokenByAuthorizationCode(){
+	private void authCodeValidation(){
 		
 		final String apiKey = getString(R.string.api_key);
 		final String secretKey = getString(R.string.secret_key);
 		try{
 			final URL redirectUrl = new URL("http://www.example.com/oauth_redirect");
-			mOAuth.getTokenByAuthorizationCode(
+			mOAuth.validateByAuchCode(
 					apiKey, 
 					secretKey, 
 					redirectUrl, 
@@ -122,9 +132,41 @@ public class MainActivity extends Activity {
 				}
 
 				@Override
-				public void onFail(String errCode,
-						String errMsg) {
-					Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
+				public void onFail(String... ret) {
+					Log.d(TAG, "errCode=" + ret[0] + " errMsg=" + ret[1]);
+				}			
+			});
+        }catch(MalformedURLException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void implicitGrantValidation(){
+		final String apiKey = getString(R.string.api_key);
+		final String secretKey = getString(R.string.secret_key);
+		try{
+			final URL redirectUrl = new URL("http://www.example.com/oauth_redirect");
+			mOAuth.validateByImplicitGrant(
+					apiKey, 
+					secretKey, 
+					redirectUrl, 
+					"basic",
+					new BaiduOAuth.TokenCallback()
+			{
+				@Override
+				public void onSuccess(String access_token, 
+						long expires_in, 
+						String scope,
+						String state,
+						String session_key,
+						String session_secret){
+					Log.d(TAG, "token: " + access_token);
+					Log.d(TAG, "state: " + state);
+				}
+
+				@Override
+				public void onFail(String... ret) {
+					Log.d(TAG, "errCode=" + ret[0] + " errMsg=" + ret[1]);
 				}			
 			});
         }catch(MalformedURLException e){
@@ -163,9 +205,8 @@ public class MainActivity extends Activity {
 			}
 
 			@Override
-			public void onFail(String errCode,
-					String errMsg) {
-				Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
+			public void onFail(String... ret) {
+				Log.d(TAG, "errCode=" + ret[0] + " errMsg=" + ret[1]);
 				
 				refreshButton.setEnabled(false);
 			}			
@@ -200,13 +241,14 @@ public class MainActivity extends Activity {
 			}
 		});
         
-        getTokenByAuthorizationCodeButton = (Button) findViewById(R.id.getTokenByAuthorizationCode);
-        getTokenByAuthorizationCodeButton.setOnClickListener(
+        validateByAuchCodeButton = 
+        		(Button) findViewById(R.id.validateByAuchCode);
+        validateByAuchCodeButton.setOnClickListener(
         new View.OnClickListener() {
 			
 			@Override
 			public void onClick(View arg0) {
-				getTokenByAuthorizationCode();
+				authCodeValidation();
 			}
 		});
         
@@ -219,6 +261,17 @@ public class MainActivity extends Activity {
 			}
 		});
         refreshButton.setEnabled(false);
+        
+        validateByImplicitGrantButton = 
+        		(Button) findViewById(R.id.validateByImplicitGrant);
+        validateByImplicitGrantButton.setOnClickListener(
+        new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				implicitGrantValidation();
+			}
+		});
     }
 
 

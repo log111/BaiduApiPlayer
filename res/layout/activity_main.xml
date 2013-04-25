@@ -16,14 +16,19 @@
         android:layout_height="wrap_content"
         android:text="@string/getAccessToken" />
     <Button
-        android:id="@+id/getTokenByAuthorizationCode"
+        android:id="@+id/validateByAuchCode"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/getTokenByAuthorizationCode" />
+        android:text="@string/validateByAuchCode" />
     <Button
         android:id="@+id/refreshToken"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/refreshToken" />
+    <Button
+        android:id="@+id/validateByImplicitGrant"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/validateByImplicitGrant" />
 
 </LinearLayout>

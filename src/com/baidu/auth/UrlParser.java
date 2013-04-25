@@ -22,20 +22,26 @@ public class UrlParser {
         Bundle ret = new Bundle();
         try {
             URL myUrl = new URL(url);
-            String queryStr = myUrl.getQuery();
+            String query = myUrl.getQuery();//the part after ? but before #
+            String anchor = myUrl.getRef();//the part after #
+            Log.d(TAG, "query=" + query + "anchor=" + anchor);
             
-            if(! isEmptyOrNull(queryStr)){
-	            String[] kvArray = queryStr.split("&");
-	        	for(String kv : kvArray){
-	        		String[] keyVal = kv.split("=");
-	        		if(keyVal.length != 2){
-	        			continue;
-	        		}else{
-	        			String key = URLDecoder.decode(keyVal[0], charsetName);
-	        			String value = URLDecoder.decode(keyVal[1], charsetName);
-	        			ret.putString(key, value);
-	        		}
-	        	}
+            String[] paramSource = {query, anchor};
+            
+            for(String source : paramSource){
+	            if(! isEmptyOrNull(source)){
+		            String[] kvArray = source.split("&");
+		        	for(String kv : kvArray){
+		        		String[] keyVal = kv.split("=");
+		        		if(keyVal.length != 2){
+		        			continue;
+		        		}else{
+		        			String key = URLDecoder.decode(keyVal[0], charsetName);
+		        			String value = URLDecoder.decode(keyVal[1], charsetName);
+		        			ret.putString(key, value);
+		        		}
+		        	}
+	            }
             }
         }catch(MalformedURLException e){
         	e.printStackTrace();

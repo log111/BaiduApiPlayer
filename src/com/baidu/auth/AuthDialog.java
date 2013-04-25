@@ -10,9 +10,11 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.baidu.auth.test.Debug;
+
 public class AuthDialog extends Activity{
 	private static final String TAG = "AuthDialog";
-	//private static final Debug debug = new Debug(TAG);
+	private static final Debug debug = new Debug(TAG);
 
 	//data received for this Activity by Intent
 	public static final String REDIRECT_URL = "redirectUrl";
@@ -80,6 +82,9 @@ public class AuthDialog extends Activity{
 	
 				if(! vals.isEmpty()){
 					Log.d(TAG, "query string not null");
+					debug.printBundle(vals);
+					
+					intent.putExtra("ret", vals);
 					
 	        		String error = vals.containsKey("error") 
 	        				? vals.getString("error") 

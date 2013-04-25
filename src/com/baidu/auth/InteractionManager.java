@@ -9,6 +9,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -37,20 +38,42 @@ public class InteractionManager {
 			}
 			
 			String taskId = intent.getStringExtra("id");
+			Bundle vals = intent.getBundleExtra("ret");
 			Log.d(TAG, "task="+taskId);
 			
+			String error = vals.containsKey("error") 
+    				? vals.getString("error") 
+    				: "";
+    		boolean successful = true;
+    		if(! UrlParser.isEmptyOrNull(error)){
+    			successful = false;
+    		}
+			
 			Callback cb = mCallbackMap.get(taskId);
-			if(isSuccess){
+			if(successful){
+				cb.onSuccess(vals);
+				/*
 				String authCode = intent.getStringExtra("authCode");
 				if(UrlParser.isEmptyOrNull(authCode)){//impossible, server error if happened.
 					Log.e(TAG, "empty auth code");
 				}else{
 					cb.onSuccess(authCode);
-				}
+				}*/
 			}else{
+				String errCode = vals.containsKey("error") 
+						? vals.getString("error")
+						: "";
+				String errMsg = vals.containsKey("error_description") 
+						? vals.getString("error_description")
+						: "";
+				String state = vals.containsKey("state") 
+						? vals.getString("state")
+						: "";
+				/*
 				String errCode = intent.getStringExtra("error");
 				String errMsg = intent.getStringExtra("errDesp");
-				cb.onFail(errCode, errMsg);
+				*/
+				cb.onFail(errCode, errMsg, state);
 			}
 			mCallbackMap.remove(taskId);
 		}	
@@ -87,8 +110,8 @@ public class InteractionManager {
 	}
 	
 	public static interface Callback{
-		void onSuccess(String result);
-		void onFail(String errCode, String errMsg);
+		void onSuccess(Bundle result);
+		void onFail(String errCode, String errMsg, String state);
 	}
 	
 	public void send(URL requestUrl, URL mAcceptRetUrl, Callback cb){
