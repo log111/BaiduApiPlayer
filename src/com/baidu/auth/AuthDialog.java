@@ -1,5 +1,6 @@
 package com.baidu.auth;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -10,11 +11,10 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.baidu.auth.test.Debug;
-
+@SuppressLint("SetJavaScriptEnabled")
 public class AuthDialog extends Activity{
 	private static final String TAG = "AuthDialog";
-	private static final Debug debug = new Debug(TAG);
+	//private static final Debug debug = new Debug(TAG);
 
 	//data received for this Activity by Intent
 	public static final String REDIRECT_URL = "redirectUrl";
@@ -34,8 +34,8 @@ public class AuthDialog extends Activity{
 		String redirectUrl = task.getStringExtra(REDIRECT_URL);
 		String requestUrl =  task.getStringExtra(REQUEST_URL);
 		
-		if(UrlParser.isEmptyOrNull(requestUrl) ||
-				UrlParser.isEmptyOrNull(redirectUrl))
+		if(Util.isEmptyOrNull(requestUrl) ||
+				Util.isEmptyOrNull(redirectUrl))
 		{
 			finish();
 		}else{
@@ -73,41 +73,21 @@ public class AuthDialog extends Activity{
 			
 			if(url.startsWith(mRedirectUrl)){//now OAth return the result.
 			
-				Log.d(TAG, "got result");
+				//Log.d(TAG, "got result");
 				
-				Bundle vals = UrlParser.decodeURLParams(url);
+				Bundle vals = Util.decodeURLParams(url);
 				Intent intent = new Intent("InteractionManager")
 							.putExtra("id", mTaskId)
 							.addFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
 	
 				if(! vals.isEmpty()){
-					Log.d(TAG, "query string not null");
-					debug.printBundle(vals);
+					//Log.d(TAG, "query string not null");
+					//debug.printBundle(vals);
 					
 					intent.putExtra("ret", vals);
-					
-	        		String error = vals.containsKey("error") 
-	        				? vals.getString("error") 
-	        				: "";
-	        		if(UrlParser.isEmptyOrNull(error)){
-	        			
-	        			String authCodeLabel = "code";
-						if(vals.containsKey(authCodeLabel)){
-							String authCode = vals.getString(authCodeLabel);
-							intent.putExtra("isSuccess", true)
-								  .putExtra("authCode", authCode);
-						}
-		            }else{
-	                	String errDesp = vals.containsKey("error_description") 
-	                				? vals.getString("error_description") 
-	                				: "";
-	    				intent.putExtra("isSuccess", false)
-	    					  .putExtra("error", error)
-	    					  .putExtra("errDesp", errDesp);
-		            }
 	        	}
         		mgr.sendBroadcast(intent);
-        		Log.d(TAG, "intent sent");
+        		//Log.d(TAG, "intent sent");
         		finish();//close the AuthDialog
 			}
 			Log.d(TAG, "shouldOverrideUrlLoading ret");

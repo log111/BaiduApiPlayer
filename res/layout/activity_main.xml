@@ -6,16 +6,6 @@
     tools:context=".MainActivity" >
 
     <Button
-        android:id="@+id/getAuthCode"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/getAuthCode" />
-    <Button
-        android:id="@+id/getAccessToken"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/getAccessToken" />
-    <Button
         android:id="@+id/validateByAuchCode"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

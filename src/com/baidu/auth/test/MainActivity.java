@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 
 import com.baidu.auth.BaiduOAuth;
-import com.baidu.auth.InteractionManager;
 import com.baidu.auth.R;
 
 public class MainActivity extends Activity {
@@ -20,121 +19,13 @@ public class MainActivity extends Activity {
 	
 	private BaiduOAuth mOAuth;
 	
-	private Button getAuthCodeButton;
-	private Button getTokenButton;
 	private Button validateByAuchCodeButton;
 	private Button refreshButton;
 	private Button validateByImplicitGrantButton;
 	private Button validateByCredentialButton;
 	
-	private String mAuthCode;
 	private String mRefreshToken;
 	
-	private void getAuthCode(){
-		
-		final String apiKey = getString(R.string.api_key);
-		
-		try{
-	        final URL redirectUrl = new URL("http://www.example.com/oauth_redirect");
-	        
-	        mOAuth.getAuthCode(apiKey, 
-	        		redirectUrl,
-	        		"basic",
-	        		new InteractionManager.Callback(){
-	
-						@Override
-						public void onSuccess(Bundle vals) {
-							String authCode = vals.containsKey("code")
-									? vals.getString("code")
-									: "";
-							Log.d(TAG, "authorized code: " + authCode);
-							mAuthCode = authCode;
-							
-							getTokenButton.setEnabled(true);
-							
-						}
-	
-						@Override
-						public void onFail(
-								String errCode, 
-								String errMsg,
-								String state) {
-							Log.d(TAG, "errCode=" + errCode + 
-									" errMsg=" + errMsg + 
-									" state=" + state);
-						}
-	        		}
-	        );
-		}catch(MalformedURLException e){
-			e.printStackTrace();
-		}
-	}
-	
-	private void clientCredentialValidation(){
-		final String apiKey = getString(R.string.api_key);
-		final String secretKey = getString(R.string.secret_key);
-        
-		mOAuth.validateByCredential(
-				apiKey, 
-				secretKey, 
-				"", //cannot be basic
-				new BaiduOAuth.TokenCallback(){
-
-					@Override
-					public void onSuccess(String access_token, 
-							long expires_in, 
-							String refresh_token,
-							String scope,
-							String session_key,
-							String session_secret){
-						Log.d(TAG, "token: " + access_token);
-						Log.d(TAG, "expires in " + expires_in);
-						Log.d(TAG, "scope: " + scope);
-					}
-
-					@Override
-					public void onFail(String... ret) {
-						String errCode = ret[0];
-						String errMsg = ret[1];
-						Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
-					}			
-				});
-	}
-	
-	private void getToken(){
-		final String apiKey = getString(R.string.api_key);
-		final String secretKey = getString(R.string.secret_key);
-        final String redirectUrl = "http://www.example.com/oauth_redirect";
-        
-		mOAuth.getTokenByAuthCode(
-				apiKey, 
-				secretKey, 
-				mAuthCode, 
-				redirectUrl, new BaiduOAuth.TokenCallback(){
-
-					@Override
-					public void onSuccess(String access_token, 
-							long expires_in, 
-							String refresh_token,
-							String scope,
-							String session_key,
-							String session_secret){
-						Log.d(TAG, "token: " + access_token);
-						Log.d(TAG, "refresh token: " + refresh_token);
-						
-						mRefreshToken = refresh_token;
-						getTokenButton.setEnabled(false);
-					}
-
-					@Override
-					public void onFail(String... ret) {
-						String errCode = ret[0];
-						String errMsg = ret[1];
-						Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
-					}			
-				});
-	}
-
 	private void authCodeValidation(){
 		
 		final String apiKey = getString(R.string.api_key);
@@ -206,6 +97,37 @@ public class MainActivity extends Activity {
 		}
 	}
 	
+	private void clientCredentialValidation(){
+		final String apiKey = getString(R.string.api_key);
+		final String secretKey = getString(R.string.secret_key);
+        
+		mOAuth.validateByCredential(
+				apiKey, 
+				secretKey, 
+				"", //cannot be basic
+				new BaiduOAuth.TokenCallback(){
+
+					@Override
+					public void onSuccess(String access_token, 
+							long expires_in, 
+							String refresh_token,
+							String scope,
+							String session_key,
+							String session_secret){
+						Log.d(TAG, "token: " + access_token);
+						Log.d(TAG, "expires in " + expires_in);
+						Log.d(TAG, "scope: " + scope);
+					}
+
+					@Override
+					public void onFail(String... ret) {
+						String errCode = ret[0];
+						String errMsg = ret[1];
+						Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
+					}			
+				});
+	}
+	
 	private void refreshToken(){
 		
 		final String apiKey = getString(R.string.api_key);
@@ -252,26 +174,6 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         mOAuth = new BaiduOAuth(this);
-        
-        getAuthCodeButton = (Button) findViewById(R.id.getAuthCode);
-        getAuthCodeButton.setEnabled(false);
-        getAuthCodeButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				getAuthCode();
-			}
-		});
-        
-        getTokenButton = (Button) findViewById(R.id.getAccessToken);
-        getTokenButton.setEnabled(false);
-        getTokenButton.setOnClickListener(new View.OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				getToken();
-			}
-		});
         
         validateByAuchCodeButton = 
         		(Button) findViewById(R.id.validateByAuchCode);

@@ -14,16 +14,21 @@ public class BaiduOAuth {
 	
 	private Context mCtx;
 	
-	public static interface Callback{
-		void onSuccess(String... ret);
+	public static interface TokenCallback{
+		void onSuccess(String access_token, 
+				long expires_in, 
+				String refresh_token,
+				String scope,
+				String session_key,
+				String session_secret);
 		void onFail(String... ret);
 	}
-
+	
 	public BaiduOAuth(Context ctx){
 		mCtx = ctx;
 	}
 	
-	public void getAuthCode(String apiKey, 
+	private void getAuthCode(String apiKey, 
 			URL redirectUrl,
 			String scope,
 			InteractionManager.Callback cb)
@@ -37,22 +42,12 @@ public class BaiduOAuth {
 		params.putString("display", "touch");
 
 		String authAPI = oauthURL + "/authorize";
-		URL requestUrl = UrlParser.encodeURLParams(authAPI, params);
+		URL requestUrl = Util.encodeURLParams(authAPI, params);
 		InteractionManager.getInstance(mCtx)
 						  .send(requestUrl, redirectUrl, cb);
 	}
 	
-	public static interface TokenCallback{
-		void onSuccess(String access_token, 
-				long expires_in, 
-				String refresh_token,
-				String scope,
-				String session_key,
-				String session_secret);
-		void onFail(String... ret);
-	}
-	
-	public void getTokenByAuthCode(String apiKey,
+	private void getTokenByAuthCode(String apiKey,
 			String secretKey, 
 			String authCode,
 			String redirectUrl,
@@ -66,7 +61,7 @@ public class BaiduOAuth {
 		params.putString("code", authCode);
 		
 		String tokenUrl = oauthURL + "/token";
-		final URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
+		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);
 		
 		final TokenCallback tcb = cb;
 		MuteTask t = new MuteTask(requestUrl, new MuteTask.Callback() {
@@ -164,7 +159,7 @@ public class BaiduOAuth {
 		params.putString("scope", scope);
 		
 		String tokenUrl = oauthURL + "/token";
-		final URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
+		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);
 		
 		final TokenCallback tcb = cb;
 		MuteTask t = new MuteTask(requestUrl, new MuteTask.Callback() {
@@ -226,7 +221,7 @@ public class BaiduOAuth {
 		params.putString("display", "touch");
 		
 		String tokenUrl = oauthURL + "/authorize";
-		final URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
+		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);
 		final TokenCallback tcb = cb;
 		
 		InteractionManager.Callback mcb = new InteractionManager.Callback() {
@@ -278,7 +273,7 @@ public class BaiduOAuth {
 		params.putString("scope", scope);
 		
 		String tokenUrl = oauthURL + "/token";
-		final URL requestUrl = UrlParser.encodeURLParams(tokenUrl, params);
+		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);
 		
 		final TokenCallback tcb = cb;
 		MuteTask t = new MuteTask(requestUrl, 

@@ -30,7 +30,6 @@ public class InteractionManager {
 		@Override
 		public void onReceive(Context arg0, Intent intent) {
 			Log.d(TAG, "broadcast received");
-			boolean isSuccess = intent.getBooleanExtra("isSuccess", false);
 			
 			String action = intent.getAction();
 			if(! "InteractionManager".equals(action)){
@@ -45,20 +44,13 @@ public class InteractionManager {
     				? vals.getString("error") 
     				: "";
     		boolean successful = true;
-    		if(! UrlParser.isEmptyOrNull(error)){
+    		if(! Util.isEmptyOrNull(error)){
     			successful = false;
     		}
 			
 			Callback cb = mCallbackMap.get(taskId);
 			if(successful){
 				cb.onSuccess(vals);
-				/*
-				String authCode = intent.getStringExtra("authCode");
-				if(UrlParser.isEmptyOrNull(authCode)){//impossible, server error if happened.
-					Log.e(TAG, "empty auth code");
-				}else{
-					cb.onSuccess(authCode);
-				}*/
 			}else{
 				String errCode = vals.containsKey("error") 
 						? vals.getString("error")
@@ -69,10 +61,6 @@ public class InteractionManager {
 				String state = vals.containsKey("state") 
 						? vals.getString("state")
 						: "";
-				/*
-				String errCode = intent.getStringExtra("error");
-				String errMsg = intent.getStringExtra("errDesp");
-				*/
 				cb.onFail(errCode, errMsg, state);
 			}
 			mCallbackMap.remove(taskId);
