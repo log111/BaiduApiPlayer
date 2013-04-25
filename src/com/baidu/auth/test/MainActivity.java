@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
 	private Button validateByAuchCodeButton;
 	private Button refreshButton;
 	private Button validateByImplicitGrantButton;
+	private Button validateByCredentialButton;
 	
 	private String mAuthCode;
 	private String mRefreshToken;
@@ -67,6 +68,37 @@ public class MainActivity extends Activity {
 		}catch(MalformedURLException e){
 			e.printStackTrace();
 		}
+	}
+	
+	private void clientCredentialValidation(){
+		final String apiKey = getString(R.string.api_key);
+		final String secretKey = getString(R.string.secret_key);
+        
+		mOAuth.validateByCredential(
+				apiKey, 
+				secretKey, 
+				"", //cannot be basic
+				new BaiduOAuth.TokenCallback(){
+
+					@Override
+					public void onSuccess(String access_token, 
+							long expires_in, 
+							String refresh_token,
+							String scope,
+							String session_key,
+							String session_secret){
+						Log.d(TAG, "token: " + access_token);
+						Log.d(TAG, "expires in " + expires_in);
+						Log.d(TAG, "scope: " + scope);
+					}
+
+					@Override
+					public void onFail(String... ret) {
+						String errCode = ret[0];
+						String errMsg = ret[1];
+						Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
+					}			
+				});
 	}
 	
 	private void getToken(){
@@ -272,6 +304,17 @@ public class MainActivity extends Activity {
 				implicitGrantValidation();
 			}
 		});
+        
+        validateByCredentialButton =
+        		(Button) findViewById(R.id.validateByCredential);
+        validateByCredentialButton.setOnClickListener(
+    		new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					clientCredentialValidation();
+				}
+			});
     }
 
 

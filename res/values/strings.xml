@@ -9,5 +9,6 @@
     <string name="validateByAuchCode">1: Authorization Code</string>
     <string name="refreshToken">Refresh Access Token</string>
     <string name="validateByImplicitGrant">2: Implicit Grant</string>
+    <string name="validateByCredential">3: Client Credential</string>
 
 </resources>
