@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
 		final String secretKey = getString(R.string.secret_key);
 		try{
 			final URL redirectUrl = new URL("http://www.example.com/oauth_redirect");
-			mOAuth.validateByAuchCode(
+			mOAuth.validateByAuthCode(
 					apiKey, 
 					secretKey, 
 					redirectUrl, 

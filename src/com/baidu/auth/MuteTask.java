@@ -13,7 +13,7 @@ import android.util.Log;
 
 public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 	
-	private static final String TAG = "MuteTask";
+	//private static final String TAG = "MuteTask";
 
 	private URL mUrl;
 	private Callback mCallback;
@@ -40,7 +40,6 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 		HttpURLConnection conn = null;
 		try{
 			conn = (HttpURLConnection)mUrl.openConnection();
-			//conn.setRequestMethod("GET");
 			conn.setRequestMethod("POST");
 			conn.setDoInput(true);
 			int respCode = conn.getResponseCode();
@@ -64,7 +63,7 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 			
 			try{
 				JSONObject obj = new JSONObject(sb.toString());
-				Log.d(TAG, obj.toString());
+				//Log.d(TAG, obj.toString());
 				
 				return obj;
 			}catch(JSONException e){

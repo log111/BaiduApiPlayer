@@ -35,12 +35,15 @@ public class BaiduOAuth {
 	{
 		Bundle params = new Bundle();
 		params.putString("client_id", apiKey);
-		params.putString("response_type", "code");
 		params.putString("redirect_uri", redirectUrl.toString());
-		params.putString("state", "");
 		params.putString("scope", scope);
-		params.putString("display", "touch");
-
+		params.putString("state", "");
+		params.putString("response_type", "code");
+		params.putString("display", "mobile");
+		//If user is login, supply an option to use it, or change to another one.
+		params.putString("confirm_login", "1");
+				
+		
 		String authAPI = oauthURL + "/authorize";
 		URL requestUrl = Util.encodeURLParams(authAPI, params);
 		InteractionManager.getInstance(mCtx)
@@ -107,7 +110,7 @@ public class BaiduOAuth {
 		t.runAsync();
 	}
 	
-	public void validateByAuchCode(
+	public void validateByAuthCode(
 			String apiKey,
 			String secretKey,
 			URL redirectUrl,
@@ -219,6 +222,8 @@ public class BaiduOAuth {
 		params.putString("redirect_uri", redirectUrl.toString());
 		params.putString("response_type", "token");
 		params.putString("display", "touch");
+		//If user is login, supply an option to use it, or change to another one.
+		params.putString("confirm_login", "1");
 		
 		String tokenUrl = oauthURL + "/authorize";
 		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);

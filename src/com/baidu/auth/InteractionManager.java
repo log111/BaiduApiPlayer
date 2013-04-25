@@ -18,6 +18,11 @@ public class InteractionManager {
 
 	private static final String TAG = "InteractionManager";
 	
+	public static interface Callback{
+		void onSuccess(Bundle result);
+		void onFail(String errCode, String errMsg, String state);
+	}
+	
 	private static InteractionManager mInstance;
 	private static Object mLock = new Object();
 	private LocalBroadcastManager mBroadcastMgr;
@@ -95,11 +100,6 @@ public class InteractionManager {
 			}
 			return mInstance;
 		}
-	}
-	
-	public static interface Callback{
-		void onSuccess(Bundle result);
-		void onFail(String errCode, String errMsg, String state);
 	}
 	
 	public void send(URL requestUrl, URL mAcceptRetUrl, Callback cb){

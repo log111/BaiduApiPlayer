@@ -69,19 +69,16 @@ public class AuthDialog extends Activity{
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			Log.d(TAG, "shouldOverrideUrlLoading ent");
-			Log.d(TAG, "url = " + url);
+			//Log.d(TAG, "url = " + url);
 			
 			if(url.startsWith(mRedirectUrl)){//now OAth return the result.
 			
-				//Log.d(TAG, "got result");
-				
 				Bundle vals = Util.decodeURLParams(url);
 				Intent intent = new Intent("InteractionManager")
 							.putExtra("id", mTaskId)
 							.addFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
 	
 				if(! vals.isEmpty()){
-					//Log.d(TAG, "query string not null");
 					//debug.printBundle(vals);
 					
 					intent.putExtra("ret", vals);
