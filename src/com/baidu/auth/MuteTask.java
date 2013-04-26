@@ -1,7 +1,8 @@
-package com.baidu.auth;
+package com.baidu.mcs.auth.baiduOAuth;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -13,22 +14,43 @@ import android.util.Log;
 
 public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 	
-	//private static final String TAG = "MuteTask";
+	private static final String TAG = "MuteTask";
 
 	private URL mUrl;
 	private Callback mCallback;
 	private boolean remoteErrorOccurred;
 	private Exception localExp;
+	private WriteHook mWriteHook;
+	private String contentType;
+	private HttpURLConnection mConn;
 	
 	public static interface Callback{
 		void onSuccess(JSONObject ret);
 		void onFail(JSONObject err, Exception localException);
 	}
 	
+	public static interface WriteHook{
+		void writeHttpBody(OutputStream out) throws IOException;
+	}
+	
 	public MuteTask(URL url, Callback cb){
+		this(url, cb, null, null);
+	}
+	
+	public MuteTask(URL url, Callback cb, String bodyMimeType, WriteHook hook){
 		mUrl = url;
 		mCallback = cb;
 		remoteErrorOccurred = false;
+		mWriteHook = hook;
+		contentType = bodyMimeType;
+	}
+	
+	public MuteTask(HttpURLConnection conn, Callback cb, String bodyMimeType, WriteHook hook){
+		mConn = conn;
+		mCallback = cb;
+		remoteErrorOccurred = false;
+		mWriteHook = hook;
+		contentType = bodyMimeType;
 	}
 	
 	public void runAsync(){
@@ -37,11 +59,20 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 	
 	@Override
 	protected JSONObject doInBackground(Void... params) {
-		HttpURLConnection conn = null;
+		HttpURLConnection conn = mConn;
 		try{
-			conn = (HttpURLConnection)mUrl.openConnection();
-			conn.setRequestMethod("POST");
-			conn.setDoInput(true);
+			if(null == conn){
+				conn = (HttpURLConnection)mUrl.openConnection();
+				conn.setRequestMethod("POST");
+				conn.setDoInput(true);
+			}
+			conn.setRequestProperty("Content-Type", contentType);
+			
+			if(mWriteHook != null){
+				OutputStream out = conn.getOutputStream();
+				mWriteHook.writeHttpBody(out);
+			}
+			
 			int respCode = conn.getResponseCode();
 			InputStreamReader reader = null;
 			
@@ -67,6 +98,7 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 				
 				return obj;
 			}catch(JSONException e){
+				//Log.d(TAG, sb.toString());
 				e.printStackTrace();
 				localExp = e;
 			}
