@@ -37,8 +37,8 @@ public class MainActivity extends Activity {
 			mOAuth.validateByAuthCode(
 					apiKey, 
 					secretKey, 
-					//redirectUrl,
-					null,
+					redirectUrl,
+					//null,
 					"basic", 
 					"", 
 					new BaiduOAuth.TokenCallback(){

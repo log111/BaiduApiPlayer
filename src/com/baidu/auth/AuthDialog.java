@@ -75,8 +75,9 @@ public class AuthDialog extends Activity{
 					}
 				});
 			}else{
-				confirmButton.setVisibility(View.INVISIBLE);
-				cancelButton.setVisibility(View.INVISIBLE);
+				verificationInput.setVisibility(View.GONE);
+				confirmButton.setVisibility(View.GONE);
+				cancelButton.setVisibility(View.GONE);
 			}
 			
 			wview.setWebViewClient(new AuthClient(redirectUrl));
