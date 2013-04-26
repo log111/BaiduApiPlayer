@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.baidu.auth.BaiduOAuth;
+import com.baidu.auth.BaiduOAuth.TokenCallback;
 import com.baidu.auth.R;
 
 public class MainActivity extends Activity {
@@ -23,6 +24,7 @@ public class MainActivity extends Activity {
 	private Button refreshButton;
 	private Button validateByImplicitGrantButton;
 	private Button validateByCredentialButton;
+	private Button validateByDeviceButton;
 	
 	private String mRefreshToken;
 	
@@ -35,7 +37,8 @@ public class MainActivity extends Activity {
 			mOAuth.validateByAuthCode(
 					apiKey, 
 					secretKey, 
-					redirectUrl, 
+					//redirectUrl,
+					null,
 					"basic", 
 					"", 
 					new BaiduOAuth.TokenCallback(){
@@ -128,6 +131,34 @@ public class MainActivity extends Activity {
 				});
 	}
 	
+	private void deviceValidation(){
+		
+		final String apiKey = getString(R.string.api_key);
+		final String secretKey = getString(R.string.secret_key);
+		
+		mOAuth.validateByDevice(
+				apiKey, 
+				secretKey, 
+				"basic", 
+				new TokenCallback(){
+
+					@Override
+					public void onSuccess(String access_token, long expires_in,
+							String refresh_token, String scope,
+							String session_key, String session_secret) {
+						// TODO Auto-generated method stub
+						
+					}
+
+					@Override
+					public void onFail(String... ret) {
+						// TODO Auto-generated method stub
+						
+					}
+					
+				});
+	}
+	
 	private void refreshToken(){
 		
 		final String apiKey = getString(R.string.api_key);
@@ -215,6 +246,17 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(View v) {
 					clientCredentialValidation();
+				}
+			});
+        
+        validateByDeviceButton =
+        		(Button) findViewById(R.id.validateByDevice);
+        validateByDeviceButton.setOnClickListener(
+        	new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					deviceValidation();
 				}
 			});
     }

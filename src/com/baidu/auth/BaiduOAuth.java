@@ -1,14 +1,21 @@
 package com.baidu.auth;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 
-public class BaiduOAuth {
+@SuppressLint("NewApi")
+public final class BaiduOAuth {
+	private static final String TAG = "BaiduOAuth";
 	private static final String openAPIURL = "https://openapi.baidu.com";
 	private static final String oauthURL = openAPIURL + "/oauth/2.0";
 	
@@ -35,7 +42,11 @@ public class BaiduOAuth {
 	{
 		Bundle params = new Bundle();
 		params.putString("client_id", apiKey);
-		params.putString("redirect_uri", redirectUrl.toString());
+		if(redirectUrl != null){
+			params.putString("redirect_uri", redirectUrl.toString());
+		}else{
+			params.putString("redirect_uri", "oob");
+		}
 		params.putString("scope", scope);
 		params.putString("state", "");
 		params.putString("response_type", "code");
@@ -60,7 +71,11 @@ public class BaiduOAuth {
 		params.putString("client_id", apiKey);
 		params.putString("grant_type", "authorization_code");
 		params.putString("client_secret", secretKey);
-		params.putString("redirect_uri", redirectUrl);
+		if(redirectUrl != null){
+			params.putString("redirect_uri", redirectUrl.toString());
+		}else{
+			params.putString("redirect_uri", "oob");
+		}
 		params.putString("code", authCode);
 		
 		String tokenUrl = oauthURL + "/token";
@@ -121,7 +136,9 @@ public class BaiduOAuth {
 		final TokenCallback myCb = cb;
 		final String clientId = apiKey;
 		final String sk = secretKey;
-		final String acceptUrl = redirectUrl.toString();
+		final String acceptUrl = (redirectUrl != null) 
+						? redirectUrl.toString()
+						: null;
 		
 		InteractionManager.Callback mcb = new InteractionManager.Callback() {
 			
@@ -319,5 +336,142 @@ public class BaiduOAuth {
 					}
 				});
 		t.runAsync();
+	}
+	
+	private void getDeviceUserCode(
+			String apiKey, 
+			String scope,
+			TokenCallback cb){
+		
+		Bundle params = new Bundle();
+		params.putString("client_id", apiKey);
+		params.putString("scope", scope);
+		params.putString("response_type", "device_code");
+		
+		URL url = Util.encodeURLParams(oauthURL + "/device/code", params);
+		final TokenCallback tcb = cb;
+		MuteTask t = new MuteTask(
+				url, 
+				new MuteTask.Callback() {
+					
+					@Override
+					public void onSuccess(JSONObject ret) {
+						try{
+							String deviceCode = ret.has("device_code")
+									? ret.getString("device_code")
+									: "";
+							String userCode = ret.has("user_code")
+									? ret.getString("user_code")
+									: "";
+							String vfUrl = ret.has("verification_url")
+									? ret.getString("verification_url")
+									: "";
+							String qcUrl = ret.has("qrcode_url")
+									? ret.getString("qrcode_url")
+									: "";
+							String expired = ret.has("expires_in")
+									? ret.getString("expires_in")
+									: "";
+							String interval = ret.has("interval")
+									? ret.getString("interval")
+									: "";
+							Log.d(TAG,  "vfUrl = " + vfUrl);
+							Log.d(TAG,  "qcUrl = " + qcUrl);
+							Log.d(TAG,  "userCode = " + userCode);
+							
+							NotificationManager nmgr 
+								= (NotificationManager) mCtx.getSystemService(Context.NOTIFICATION_SERVICE);
+							Notification noti = null;
+							/*
+							if(Build.VERSION.SDK_INT >= 11 
+									&& Build.VERSION.SDK_INT < 16){
+								noti = new Notification.Builder(mCtx)
+									.setContentTitle("User Code")
+									.setContentText(userCode)
+									.getNotification();
+							}else if(Build.VERSION.SDK_INT > 16){
+							*/	
+							noti = new Notification.Builder(mCtx)
+									.setContentTitle(userCode)
+									.setContentText("User Code")
+									.setSmallIcon(R.drawable.ic_launcher)
+									.getNotification();
+								Log.d(TAG, "notification="+noti.toString());
+							/*
+							}else{
+								//TODO
+							}*/
+							nmgr.notify(noti.hashCode(), noti);
+							verifyUserCode(userCode, vfUrl, qcUrl, tcb);							
+						}catch(JSONException e){
+							e.printStackTrace();
+						}
+					}
+					
+					@Override
+					public void onFail(JSONObject err, Exception localException) {
+						if(err != null){
+							try{
+								String errCode = err.has("error")
+										? err.getString("error")
+										: "";
+								String errMsg = err.has("error_description")
+										? err.getString("error_description")
+										: "";
+								tcb.onFail(errCode, errMsg);
+								
+							}catch(JSONException e){
+								e.printStackTrace();
+							}
+						}else{
+							//
+						}
+					}
+				});
+		t.runAsync();
+	}
+	
+	private void verifyUserCode(
+			String userCode, String verifyUrl, /* input userCode into the verifyUrl */ 
+			String qcodeUrl, /* scan the qcode in the qcodeUrl */
+			TokenCallback cb){
+		
+		try{
+			URL requestUrl = new URL(verifyUrl);
+			URL mockUrl = new URL("http://localhost");
+			InteractionManager.getInstance(mCtx)
+				.send(requestUrl, 
+					mockUrl, 
+					new InteractionManager.Callback() {
+						
+						@Override
+						public void onSuccess(Bundle result) {
+							Log.d(TAG, "verify success");
+						}
+						
+						@Override
+						public void onFail(String errCode, String errMsg, String state) {
+							Log.d(TAG, "fail to verify");
+						}
+					});
+		}catch(MalformedURLException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void getTokenByDeviceCode(
+			String apiKey, 
+			String secretKey, 
+			String deviceCode)
+	{
+		//TODO
+	}
+	
+	public void validateByDevice(
+			String apiKey, 
+			String secretKey,
+			String scope, 
+			TokenCallback cb){
+		getDeviceUserCode(apiKey, scope, cb);
 	}
 }

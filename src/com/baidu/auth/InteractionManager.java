@@ -109,9 +109,11 @@ public class InteractionManager {
 		
 		Intent i = new Intent(taskId)
 			.setComponent(new ComponentName(mCtx, AuthDialog.class))
-			.putExtra(AuthDialog.REDIRECT_URL, mAcceptRetUrl.toString())
 			.putExtra(AuthDialog.REQUEST_URL, requestUrl.toString())
 			.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		if(mAcceptRetUrl != null){
+			i.putExtra(AuthDialog.REDIRECT_URL, mAcceptRetUrl.toString());
+		}
 		mCtx.startActivity(i);
 	}
 }

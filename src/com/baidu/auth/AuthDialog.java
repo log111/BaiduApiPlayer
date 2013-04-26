@@ -2,14 +2,18 @@ package com.baidu.auth;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.webkit.HttpAuthHandler;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.EditText;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class AuthDialog extends Activity{
@@ -34,27 +38,53 @@ public class AuthDialog extends Activity{
 		String redirectUrl = task.getStringExtra(REDIRECT_URL);
 		String requestUrl =  task.getStringExtra(REQUEST_URL);
 		
-		if(Util.isEmptyOrNull(requestUrl) ||
-				Util.isEmptyOrNull(redirectUrl))
-		{
+		if(Util.isEmptyOrNull(requestUrl)){
 			finish();
 		}else{
-			AuthWebView authView = new AuthWebView(
-					this,
-					redirectUrl);
-        	setContentView(authView);
-        	authView.loadUrl(requestUrl);
-		}
-	}
-	
-	private class AuthWebView extends WebView {
-		
-		public AuthWebView(Context context, String redirectUrl) {
-			super(context);
-			setWebViewClient(new AuthClient(redirectUrl));
+			setContentView(R.layout.auth_dialog);
 			
-			WebSettings settings = getSettings();
+			Button confirmButton = (Button) findViewById(R.id.confirm);
+			Button cancelButton = (Button) findViewById(R.id.cancel);
+			final EditText verificationInput = 
+					(EditText) findViewById(R.id.verificationInput);
+			WebView wview = (WebView) findViewById(R.id.validatePage);
+			
+			if(Util.isEmptyOrNull(redirectUrl)){
+			
+				confirmButton.setOnClickListener(new OnClickListener(){	
+					@Override
+					public void onClick(View arg0) {
+						
+						String verify = verificationInput.getText()
+									.toString()
+									.trim();
+						Bundle vals = new Bundle();
+						vals.putString("code", verify);
+						Intent intent = new Intent("InteractionManager")
+							.putExtra("id", mTaskId)
+							.putExtra("ret", vals)
+							.addFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
+						mgr.sendBroadcast(intent);
+						finish();
+					}
+				});
+				cancelButton.setOnClickListener(new OnClickListener() {					
+					@Override
+					public void onClick(View v) {
+						finish();
+					}
+				});
+			}else{
+				confirmButton.setVisibility(View.INVISIBLE);
+				cancelButton.setVisibility(View.INVISIBLE);
+			}
+			
+			wview.setWebViewClient(new AuthClient(redirectUrl));
+			WebSettings settings = wview.getSettings();
 			settings.setJavaScriptEnabled(true);
+			
+			wview.loadUrl(requestUrl);
+			wview.requestFocus();
 		}
 	}
 	
@@ -67,11 +97,35 @@ public class AuthDialog extends Activity{
 		}
 		
 		@Override
+		public void onReceivedError(WebView view, int errorCode,
+				String description, String failingUrl) {
+			Log.d(TAG, "code="+errorCode+" desp="+description+" fail="+failingUrl);
+		}
+		
+		@Override
+		public void onReceivedLoginRequest(WebView view, String realm,
+				String account, String args) {
+			Log.d(TAG, "realm="+realm + " account="+account);
+		}
+		
+		@Override
+		public void onReceivedHttpAuthRequest(WebView view,
+				HttpAuthHandler handler, String host, String realm) {
+			Log.d(TAG, "host=" + host + " realm=" + realm);
+		}
+		
+		@Override
+		public void onPageFinished(WebView view, String url) {
+			// TODO Auto-generated method stub
+			super.onPageFinished(view, url);
+		}
+		
+		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			Log.d(TAG, "shouldOverrideUrlLoading ent");
-			//Log.d(TAG, "url = " + url);
+			Log.d(TAG, "url = " + url);
 			
-			if(url.startsWith(mRedirectUrl)){//now OAth return the result.
+			if(mRedirectUrl != null && url.startsWith(mRedirectUrl)){//now OAth return the result.
 			
 				Bundle vals = Util.decodeURLParams(url);
 				Intent intent = new Intent("InteractionManager")
