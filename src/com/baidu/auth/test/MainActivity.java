@@ -38,8 +38,8 @@ public class MainActivity extends Activity {
 					apiKey, 
 					secretKey, 
 					redirectUrl,
-					//null,
-					"basic", 
+					null,
+					//"basic", 
 					"", 
 					new BaiduOAuth.TokenCallback(){
 
@@ -75,7 +75,8 @@ public class MainActivity extends Activity {
 			mOAuth.validateByImplicitGrant(
 					apiKey, 
 					secretKey, 
-					redirectUrl, 
+					//redirectUrl,
+					null,
 					"basic",
 					new BaiduOAuth.TokenCallback()
 			{

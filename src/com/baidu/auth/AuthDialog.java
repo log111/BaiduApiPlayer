@@ -24,6 +24,8 @@ public class AuthDialog extends Activity{
 	public static final String REDIRECT_URL = "redirectUrl";
 	public static final String REQUEST_URL = "requestUrl";
 	
+	private static final String DEFAULT_REDIRECT_URL="http://openapi.baidu.com/oauth/2.0/login_success";
+	
 	private String mTaskId;
 	private LocalBroadcastManager mgr;
 	
@@ -126,7 +128,9 @@ public class AuthDialog extends Activity{
 			Log.d(TAG, "shouldOverrideUrlLoading ent");
 			Log.d(TAG, "url = " + url);
 			
-			if(mRedirectUrl != null && url.startsWith(mRedirectUrl)){//now OAth return the result.
+			if( (mRedirectUrl != null && url.startsWith(mRedirectUrl))
+					|| (url.startsWith(DEFAULT_REDIRECT_URL)) )
+			{//now OAth return the result.
 			
 				Bundle vals = Util.decodeURLParams(url);
 				Intent intent = new Intent("InteractionManager")

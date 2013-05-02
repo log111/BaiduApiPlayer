@@ -42,12 +42,8 @@ public final class BaiduOAuth {
 	{
 		Bundle params = new Bundle();
 		params.putString("client_id", apiKey);
-		if(redirectUrl != null){
-			params.putString("redirect_uri", redirectUrl.toString());
-		}else{
-			params.putString("redirect_uri", "oob");
-		}
-		params.putString("scope", scope);
+		params.putString("redirect_uri", (redirectUrl!=null ? redirectUrl.toString() : "oob") );
+		params.putString("scope", (scope!=null ? scope : ""));
 		params.putString("state", "");
 		params.putString("response_type", "code");
 		params.putString("display", "mobile");
@@ -235,8 +231,8 @@ public final class BaiduOAuth {
 		Bundle params = new Bundle();
 		params.putString("client_id", apiKey);
 		params.putString("client_secret", secretKey);
-		params.putString("scope", scope);
-		params.putString("redirect_uri", redirectUrl.toString());
+		params.putString("scope", (scope!=null ? scope : ""));
+		params.putString("redirect_uri", (redirectUrl != null ? redirectUrl.toString() : "oob") );
 		params.putString("response_type", "token");
 		params.putString("display", "touch");
 		//If user is login, supply an option to use it, or change to another one.
