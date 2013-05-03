@@ -13,6 +13,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 @SuppressLint("NewApi")
 public final class BaiduOAuth {
@@ -384,7 +385,7 @@ public final class BaiduOAuth {
 							
 								noti = new Notification.Builder(mCtx)
 										.setContentTitle(userCode)
-										.setContentText("User Code")
+										.setContentText(userCode)
 										.setSmallIcon(R.drawable.ic_launcher)
 										.build();
 							}else if(
@@ -393,14 +394,16 @@ public final class BaiduOAuth {
 									Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
 							{
 								noti = new Notification.Builder(mCtx)
-									.setContentTitle("User Code")
+									.setContentTitle(userCode)
 									.setContentText(userCode)
 									.setSmallIcon(R.drawable.ic_launcher)
 									.getNotification();
 							}else{
-								//TODO
+								noti = new Notification();
+								noti.icon = R.drawable.ic_launcher;
+								noti.setLatestEventInfo(mCtx, userCode, userCode, null);
 							}
-							nmgr.notify(noti.hashCode(), noti);
+							nmgr.notify("baiduOAuth_user_code", 0, noti);
 							verifyUserCode(userCode, vfUrl, qcUrl, tcb);							
 						}catch(JSONException e){
 							e.printStackTrace();
@@ -437,10 +440,10 @@ public final class BaiduOAuth {
 		
 		try{
 			URL requestUrl = new URL(verifyUrl);
-			URL mockUrl = new URL("http://localhost");
+			//URL mockUrl = new URL("http://localhost");
 			InteractionManager.getInstance(mCtx)
 				.send(requestUrl, 
-					mockUrl, 
+					null, 
 					new InteractionManager.Callback() {
 						
 						@Override

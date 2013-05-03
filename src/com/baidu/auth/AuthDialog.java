@@ -129,7 +129,7 @@ public class AuthDialog extends Activity{
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			Log.d(TAG, "shouldOverrideUrlLoading ent");
 			Log.d(TAG, "url = " + url);
-			view.loadUrl("javascript::document.getElementByTagName('body')");
+			//view.loadUrl("javascript::document.getElementByTagName('body')");
 			
 			if( (mRedirectUrl != null && url.startsWith(mRedirectUrl))
 					|| (url.startsWith(DEFAULT_REDIRECT_URL)) )
