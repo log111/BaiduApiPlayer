@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -378,25 +379,27 @@ public final class BaiduOAuth {
 							NotificationManager nmgr 
 								= (NotificationManager) mCtx.getSystemService(Context.NOTIFICATION_SERVICE);
 							Notification noti = null;
-							/*
-							if(Build.VERSION.SDK_INT >= 11 
-									&& Build.VERSION.SDK_INT < 16){
+							
+							if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+							
+								noti = new Notification.Builder(mCtx)
+										.setContentTitle(userCode)
+										.setContentText("User Code")
+										.setSmallIcon(R.drawable.ic_launcher)
+										.build();
+							}else if(
+									Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB 
+									&& 
+									Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
+							{
 								noti = new Notification.Builder(mCtx)
 									.setContentTitle("User Code")
 									.setContentText(userCode)
-									.getNotification();
-							}else if(Build.VERSION.SDK_INT > 16){
-							*/	
-							noti = new Notification.Builder(mCtx)
-									.setContentTitle(userCode)
-									.setContentText("User Code")
 									.setSmallIcon(R.drawable.ic_launcher)
 									.getNotification();
-								Log.d(TAG, "notification="+noti.toString());
-							/*
 							}else{
 								//TODO
-							}*/
+							}
 							nmgr.notify(noti.hashCode(), noti);
 							verifyUserCode(userCode, vfUrl, qcUrl, tcb);							
 						}catch(JSONException e){

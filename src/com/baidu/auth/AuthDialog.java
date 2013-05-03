@@ -28,6 +28,7 @@ public class AuthDialog extends Activity{
 	
 	private String mTaskId;
 	private LocalBroadcastManager mgr;
+	private EditText verificationInput;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +48,9 @@ public class AuthDialog extends Activity{
 			
 			Button confirmButton = (Button) findViewById(R.id.confirm);
 			Button cancelButton = (Button) findViewById(R.id.cancel);
-			final EditText verificationInput = 
-					(EditText) findViewById(R.id.verificationInput);
+			//final EditText verificationInput = 
+			verificationInput =
+				(EditText) findViewById(R.id.verificationInput);
 			WebView wview = (WebView) findViewById(R.id.validatePage);
 			
 			if(Util.isEmptyOrNull(redirectUrl)){
@@ -127,19 +129,19 @@ public class AuthDialog extends Activity{
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			Log.d(TAG, "shouldOverrideUrlLoading ent");
 			Log.d(TAG, "url = " + url);
+			view.loadUrl("javascript::document.getElementByTagName('body')");
 			
 			if( (mRedirectUrl != null && url.startsWith(mRedirectUrl))
 					|| (url.startsWith(DEFAULT_REDIRECT_URL)) )
-			{//now OAth return the result.
+			{//OAth return the result to redirect_url
 			
 				Bundle vals = Util.decodeURLParams(url);
+				
 				Intent intent = new Intent("InteractionManager")
 							.putExtra("id", mTaskId)
 							.addFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
-	
 				if(! vals.isEmpty()){
 					//debug.printBundle(vals);
-					
 					intent.putExtra("ret", vals);
 	        	}
         		mgr.sendBroadcast(intent);
