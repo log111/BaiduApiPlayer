@@ -339,7 +339,8 @@ public final class BaiduOAuth {
 	private void getDeviceUserCode(
 			String apiKey, 
 			String scope,
-			TokenCallback cb){
+			TokenCallback cb,
+			String secretKey){
 		
 		Bundle params = new Bundle();
 		params.putString("client_id", apiKey);
@@ -348,6 +349,9 @@ public final class BaiduOAuth {
 		
 		URL url = Util.encodeURLParams(oauthURL + "/device/code", params);
 		final TokenCallback tcb = cb;
+		final String ak = apiKey;
+		final String sk = secretKey;
+		
 		MuteTask t = new MuteTask(
 				url, 
 				new MuteTask.Callback() {
@@ -404,7 +408,7 @@ public final class BaiduOAuth {
 								noti.setLatestEventInfo(mCtx, userCode, userCode, null);
 							}
 							nmgr.notify("baiduOAuth_user_code", 0, noti);
-							verifyUserCode(userCode, vfUrl, qcUrl, tcb);							
+							verifyUserCode(userCode, vfUrl, qcUrl, tcb, deviceCode, ak, sk);							
 						}catch(JSONException e){
 							e.printStackTrace();
 						}
@@ -436,19 +440,31 @@ public final class BaiduOAuth {
 	private void verifyUserCode(
 			String userCode, String verifyUrl, /* input userCode into the verifyUrl */ 
 			String qcodeUrl, /* scan the qcode in the qcodeUrl */
-			TokenCallback cb){
+			TokenCallback cb,
+			String deviceCode,
+			String apiKey,
+			String secretKey){
 		
 		try{
 			URL requestUrl = new URL(verifyUrl);
-			//URL mockUrl = new URL("http://localhost");
+			Bundle params = new Bundle();
+			params.putString("user_code", userCode);
+			
+			final String ak = apiKey;
+			final String sk = secretKey;
+			final String dc = deviceCode;
+			
+			final TokenCallback tcb = cb;
 			InteractionManager.getInstance(mCtx)
 				.send(requestUrl, 
-					null, 
+					null,
+					params,
 					new InteractionManager.Callback() {
 						
 						@Override
 						public void onSuccess(Bundle result) {
 							Log.d(TAG, "verify success");
+							getTokenByDeviceCode(ak, sk, dc, tcb);
 						}
 						
 						@Override
@@ -464,9 +480,69 @@ public final class BaiduOAuth {
 	private void getTokenByDeviceCode(
 			String apiKey, 
 			String secretKey, 
-			String deviceCode)
+			String deviceCode,
+			TokenCallback cb)
 	{
-		//TODO
+		Bundle params = new Bundle();
+		params.putString("grant_type", "device_token");
+		params.putString("code", deviceCode);
+		params.putString("client_id", apiKey);
+		params.putString("client_secret", secretKey);
+		
+		URL url = Util.encodeURLParams(oauthURL + "/token", params);
+		
+		final TokenCallback tcb = cb;
+		MuteTask t = new MuteTask(url, new MuteTask.Callback() {
+			
+			@Override
+			public void onSuccess(JSONObject ret) {
+				try{
+					String access_token = ret.has("access_token")
+							? ret.getString("access_token")
+							: "";
+					long expires_in = ret.has("expires_in")
+							? ret.getLong("expires_in")
+							: -1;
+					String refresh_token = ret.has("refresh_token")
+							? ret.getString("refresh_token")
+							: "";
+					String scope = ret.has("scope")
+							? ret.getString("scope")
+							: "";
+					String session_key = ret.has("session_key")
+							? ret.getString("session_key")
+							: "";
+					String session_secret = ret.has("session_secret")
+							? ret.getString("session_secret")
+							: "";
+					tcb.onSuccess(access_token, expires_in, refresh_token, scope, session_key, session_secret);
+					
+				}catch(JSONException e){
+					e.printStackTrace();
+				}
+			}
+			
+			@Override
+			public void onFail(JSONObject err, Exception localException) {
+				if(err != null){
+					try{
+						String errCode = err.has("error")
+								? err.getString("error")
+								: "";
+						String errMsg = err.has("error_description")
+								? err.getString("error_description")
+								: "";
+						tcb.onFail(errCode, errMsg);
+						
+					}catch(JSONException e){
+						e.printStackTrace();
+					}
+				}else{
+					//
+				}
+			}
+		});
+		t.runAsync();
 	}
 	
 	public void validateByDevice(
@@ -474,6 +550,6 @@ public final class BaiduOAuth {
 			String secretKey,
 			String scope, 
 			TokenCallback cb){
-		getDeviceUserCode(apiKey, scope, cb);
+		getDeviceUserCode(apiKey, scope, cb, secretKey);
 	}
 }

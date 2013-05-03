@@ -15,10 +15,12 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.baidu.auth.test.Debug;
+
 @SuppressLint("SetJavaScriptEnabled")
 public class AuthDialog extends Activity{
 	private static final String TAG = "AuthDialog";
-	//private static final Debug debug = new Debug(TAG);
+	private static final Debug debug = new Debug(TAG);
 
 	//data received for this Activity by Intent
 	public static final String REDIRECT_URL = "redirectUrl";
@@ -29,6 +31,7 @@ public class AuthDialog extends Activity{
 	private String mTaskId;
 	private LocalBroadcastManager mgr;
 	private EditText verificationInput;
+	private String user_code = "";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,8 @@ public class AuthDialog extends Activity{
 		mTaskId = task.getAction();
 		String redirectUrl = task.getStringExtra(REDIRECT_URL);
 		String requestUrl =  task.getStringExtra(REQUEST_URL);
+		Bundle params = task.getBundleExtra("params");
+		user_code = params.containsKey("user_code") ? params.getString("user_code") : "";
 		
 		if(Util.isEmptyOrNull(requestUrl)){
 			finish();
@@ -85,11 +90,42 @@ public class AuthDialog extends Activity{
 			}
 			
 			wview.setWebViewClient(new AuthClient(redirectUrl));
+			wview.addJavascriptInterface(new PageParser(), "pageParser");
 			WebSettings settings = wview.getSettings();
 			settings.setJavaScriptEnabled(true);
 			
 			wview.loadUrl(requestUrl);
 			wview.requestFocus();
+		}
+	}
+	
+	final Activity me = this;
+	private class PageParser{
+		public void print(String data){
+			int len = data.length();
+			int start=0;
+			int end=start+1;
+			for(;end<len;end++){
+				if(data.charAt(end) == '\n'){
+					Log.d(TAG, data.substring(start, end));
+					start = end+1;
+				}
+			}
+		}
+		
+		public void stopHostActivity(){
+			
+			String verify = verificationInput.getText()
+					.toString()
+					.trim();
+			Bundle vals = new Bundle();
+			vals.putString("code", verify);
+			Intent intent = new Intent("InteractionManager")
+				.putExtra("id", mTaskId)
+				.putExtra("ret", vals)
+				.addFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
+			mgr.sendBroadcast(intent);
+			finish();
 		}
 	}
 	
@@ -121,15 +157,25 @@ public class AuthDialog extends Activity{
 		
 		@Override
 		public void onPageFinished(WebView view, String url) {
-			// TODO Auto-generated method stub
-			super.onPageFinished(view, url);
+			Log.d(TAG, "onPageFinished ent");
+			
+			//view.loadUrl("javascript:window.pageParser.print('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');");
+			
+			if(url.endsWith("device")){//determined by url
+				String script = "var usercode = document.getElementById('code');" +
+						"usercode.setAttribute('value', '"+ user_code +"');" +
+						"var submit = document.getElementById('pass_fillinusername_submit_input');" +
+						"submit.click();";
+				view.loadUrl("javascript:" + script);
+			}
+			
+			Log.d(TAG, "onPageFinished ret");
 		}
 		
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
 			Log.d(TAG, "shouldOverrideUrlLoading ent");
 			Log.d(TAG, "url = " + url);
-			//view.loadUrl("javascript::document.getElementByTagName('body')");
 			
 			if( (mRedirectUrl != null && url.startsWith(mRedirectUrl))
 					|| (url.startsWith(DEFAULT_REDIRECT_URL)) )
@@ -141,13 +187,17 @@ public class AuthDialog extends Activity{
 							.putExtra("id", mTaskId)
 							.addFlags(Intent.FLAG_DEBUG_LOG_RESOLUTION);
 				if(! vals.isEmpty()){
-					//debug.printBundle(vals);
+					user_code = vals.containsKey("user_code") 
+							? vals.getString("user_code")
+							: "";
+					debug.printBundle(vals);
 					intent.putExtra("ret", vals);
 	        	}
         		mgr.sendBroadcast(intent);
         		//Log.d(TAG, "intent sent");
         		finish();//close the AuthDialog
 			}
+			
 			Log.d(TAG, "shouldOverrideUrlLoading ret");
             return false;
         }

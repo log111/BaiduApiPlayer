@@ -53,6 +53,13 @@ public class MainActivity extends Activity {
 					Log.d(TAG, "token: " + access_token);
 					Log.d(TAG, "refresh token: " + refresh_token);
 					
+					Log.d(TAG, "token: " + access_token);
+					Log.d(TAG, "expires in " + expires_in);
+					Log.d(TAG, "refresh_token: " + refresh_token);
+					Log.d(TAG, "scope: " + scope);
+					Log.d(TAG, "session_key: " + session_key);
+					Log.d(TAG, "session_secret: " + session_secret);
+					
 					mRefreshToken = refresh_token;
 					refreshButton.setEnabled(true);
 				}
@@ -84,11 +91,16 @@ public class MainActivity extends Activity {
 				public void onSuccess(String access_token, 
 						long expires_in, 
 						String scope,
-						String state,
+						String state, //no refresh_token, but state
 						String session_key,
 						String session_secret){
+					
 					Log.d(TAG, "token: " + access_token);
+					Log.d(TAG, "expires in " + expires_in);
 					Log.d(TAG, "state: " + state);
+					Log.d(TAG, "scope: " + scope);
+					Log.d(TAG, "session_key: " + session_key);
+					Log.d(TAG, "session_secret: " + session_secret);
 				}
 
 				@Override
@@ -118,9 +130,16 @@ public class MainActivity extends Activity {
 							String scope,
 							String session_key,
 							String session_secret){
+						
 						Log.d(TAG, "token: " + access_token);
 						Log.d(TAG, "expires in " + expires_in);
+						Log.d(TAG, "refresh_token: " + refresh_token);
 						Log.d(TAG, "scope: " + scope);
+						Log.d(TAG, "session_key: " + session_key);
+						Log.d(TAG, "session_secret: " + session_secret);
+						
+						mRefreshToken = refresh_token;
+						refreshButton.setEnabled(true);
 					}
 
 					@Override
@@ -147,14 +166,23 @@ public class MainActivity extends Activity {
 					public void onSuccess(String access_token, long expires_in,
 							String refresh_token, String scope,
 							String session_key, String session_secret) {
-						// TODO Auto-generated method stub
 						
+						Log.d(TAG, "token: " + access_token);
+						Log.d(TAG, "expires in " + expires_in);
+						Log.d(TAG, "refresh_token: " + refresh_token);
+						Log.d(TAG, "scope: " + scope);
+						Log.d(TAG, "session_key: " + session_key);
+						Log.d(TAG, "session_secret: " + session_secret);
+						
+						mRefreshToken = refresh_token;
+						refreshButton.setEnabled(true);
 					}
 
 					@Override
 					public void onFail(String... ret) {
-						// TODO Auto-generated method stub
-						
+						String errCode = ret[0];
+						String errMsg = ret[1];
+						Log.d(TAG, "errCode=" + errCode + " errMsg=" + errMsg);
 					}
 					
 				});

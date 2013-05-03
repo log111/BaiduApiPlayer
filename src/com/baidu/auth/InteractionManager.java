@@ -102,7 +102,7 @@ public class InteractionManager {
 		}
 	}
 	
-	public void send(URL requestUrl, URL mAcceptRetUrl, Callback cb){
+	public void send(URL requestUrl, URL mAcceptRetUrl, Bundle params, Callback cb){
 		
 		String taskId = cb.toString();
 		mCallbackMap.put(taskId, cb);
@@ -114,6 +114,17 @@ public class InteractionManager {
 		if(mAcceptRetUrl != null){
 			i.putExtra(AuthDialog.REDIRECT_URL, mAcceptRetUrl.toString());
 		}
+		if(params != null){
+			i.putExtra("params", params);
+		}
 		mCtx.startActivity(i);
+	}
+	
+	public void send(URL requestUrl, URL mAcceptRetUrl, Callback cb){
+		send(requestUrl, mAcceptRetUrl, null, cb);
+	}
+	
+	public void send(URL requestUrl, Callback cb){
+		send(requestUrl, null, null, cb);
 	}
 }
