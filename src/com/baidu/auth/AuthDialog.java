@@ -43,8 +43,10 @@ public class AuthDialog extends Activity{
 		mTaskId = task.getAction();
 		String redirectUrl = task.getStringExtra(REDIRECT_URL);
 		String requestUrl =  task.getStringExtra(REQUEST_URL);
-		Bundle params = task.getBundleExtra("params");
-		user_code = params.containsKey("user_code") ? params.getString("user_code") : "";
+		if(task.hasExtra("params")){
+			Bundle params = task.getBundleExtra("params");
+			user_code = params.containsKey("user_code") ? params.getString("user_code") : "";
+		}
 		
 		if(Util.isEmptyOrNull(requestUrl)){
 			finish();

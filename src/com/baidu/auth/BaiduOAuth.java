@@ -7,19 +7,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 @SuppressLint("NewApi")
 public final class BaiduOAuth {
 	private static final String TAG = "BaiduOAuth";
-	private static final String openAPIURL = "https://openapi.baidu.com";
-	private static final String oauthURL = openAPIURL + "/oauth/2.0";
+	
+	private static final String openApiURL = "https://openapi.baidu.com";
+	public static final String oauthURL = openApiURL + "/oauth/2.0";
+	public static final String tokenURL = oauthURL + "/token";
+	public static final String authURL = oauthURL + "/authorize";
+	public static final String deviceCodeURL = oauthURL + "/device/code";
+	
 	
 	private Context mCtx;
 	
@@ -31,6 +32,13 @@ public final class BaiduOAuth {
 				String session_key,
 				String session_secret);
 		void onFail(String... ret);
+	}
+	
+	public static enum Type{
+		AUTHORIZATION_CODE,
+		IMPLICIT_CODE,
+		CLIENT_CREDENTIAL,
+		DEVICE
 	}
 	
 	public BaiduOAuth(Context ctx){
@@ -52,9 +60,7 @@ public final class BaiduOAuth {
 		//If user is login, supply an option to use it, or change to another one.
 		params.putString("confirm_login", "1");
 				
-		
-		String authAPI = oauthURL + "/authorize";
-		URL requestUrl = Util.encodeURLParams(authAPI, params);
+		URL requestUrl = Util.encodeURLParams(authURL, params);
 		InteractionManager.getInstance(mCtx)
 						  .send(requestUrl, redirectUrl, cb);
 	}
@@ -76,8 +82,7 @@ public final class BaiduOAuth {
 		}
 		params.putString("code", authCode);
 		
-		String tokenUrl = oauthURL + "/token";
-		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);
+		final URL requestUrl = Util.encodeURLParams(tokenURL, params);
 		
 		final TokenCallback tcb = cb;
 		MuteTask t = new MuteTask(requestUrl, new MuteTask.Callback() {
@@ -123,6 +128,15 @@ public final class BaiduOAuth {
 		t.runAsync();
 	}
 	
+	/**
+	 * 
+	 * @param apiKey
+	 * @param secretKey
+	 * @param redirectUrl
+	 * @param scope - 用户授权, 平台授权
+	 * @param state
+	 * @param cb
+	 */
 	public void validateByAuthCode(
 			String apiKey,
 			String secretKey,
@@ -162,67 +176,14 @@ public final class BaiduOAuth {
 		getAuthCode(apiKey, redirectUrl, scope, mcb);
 	}
 	
-	public void refreshToken(
-			String apiKey,
-			String secretKey,
-			String refreshToken,
-			String scope,
-			TokenCallback cb)
-	{
-		Bundle params = new Bundle();
-		params.putString("client_id", apiKey);
-		params.putString("grant_type", "refresh_token");
-		params.putString("client_secret", secretKey);
-		params.putString("refresh_token", refreshToken);
-		params.putString("scope", scope);
-		
-		String tokenUrl = oauthURL + "/token";
-		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);
-		
-		final TokenCallback tcb = cb;
-		MuteTask t = new MuteTask(requestUrl, new MuteTask.Callback() {
-			
-			@Override
-			public void onSuccess(JSONObject ret) {
-				try{
-					String access_token = ret.has("access_token") 
-							? ret.getString("access_token") : "";
-					long expires_in = ret.has("expires_in") 
-							? ret.getLong("expires_in") : -1;
-					String refresh_token = ret.has("refresh_token") 
-							? ret.getString("refresh_token") : "";
-					String scope = ret.has("scope") 
-							? ret.getString("scope") : "";
-					String session_key = ret.has("session_key") 
-							? ret.getString("session_key") : "";
-					String session_secret = ret.has("session_secret")
-							? ret.getString("session_secret") : "";
-					
-					tcb.onSuccess(access_token, 
-							expires_in, 
-							refresh_token, 
-							scope, 
-							session_key, 
-							session_secret);
-				}catch(JSONException e){//unless server returns a bad reply, which is impossible.
-					e.printStackTrace();
-				}
-			}
-			
-			@Override
-			public void onFail(JSONObject err, Exception localException) {
-				try{
-					String error = err.has("error") ? err.getString("error") : "";
-					String errDesp = err.has("error_description") ? err.getString("error_description") : "";
-					tcb.onFail(error, errDesp);
-				}catch(JSONException e){//unless server returns a bad reply, which is impossible.
-					e.printStackTrace();
-				}
-			}
-		});
-		t.runAsync();
-	}
-	
+	/**
+	 * 
+	 * @param apiKey
+	 * @param secretKey
+	 * @param redirectUrl
+	 * @param scope - 用户授权, 平台授权
+	 * @param cb
+	 */
 	public void validateByImplicitGrant(
 			String apiKey,
 			String secretKey,
@@ -240,8 +201,7 @@ public final class BaiduOAuth {
 		//If user is login, supply an option to use it, or change to another one.
 		params.putString("confirm_login", "1");
 		
-		String tokenUrl = oauthURL + "/authorize";
-		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);
+		final URL requestUrl = Util.encodeURLParams(authURL, params);
 		final TokenCallback tcb = cb;
 		
 		InteractionManager.Callback mcb = new InteractionManager.Callback() {
@@ -280,6 +240,13 @@ public final class BaiduOAuth {
 			.send(requestUrl, redirectUrl, mcb);
 	}
 	
+	/**
+	 * 
+	 * @param apiKey
+	 * @param secretKey
+	 * @param scope - 平台授权相关的权限
+	 * @param cb
+	 */
 	public void validateByCredential(
 			String apiKey,
 			String secretKey,
@@ -292,8 +259,7 @@ public final class BaiduOAuth {
 		params.putString("client_secret", secretKey);
 		params.putString("scope", scope);
 		
-		String tokenUrl = oauthURL + "/token";
-		final URL requestUrl = Util.encodeURLParams(tokenUrl, params);
+		final URL requestUrl = Util.encodeURLParams(tokenURL, params);
 		
 		final TokenCallback tcb = cb;
 		MuteTask t = new MuteTask(requestUrl, 
@@ -306,6 +272,9 @@ public final class BaiduOAuth {
 									? ret.getString("access_token") : "";
 							long expires_in = ret.has("expires_in") 
 									? ret.getLong("expires_in") : -1;
+							String refresh_token = ret.has("refresh_token")
+									? ret.getString("refresh_token")
+									: "";		
 							String session_key = ret.has("session_key") 
 									? ret.getString("session_key") : "";
 							String session_secret = ret.has("session_secret")
@@ -313,7 +282,7 @@ public final class BaiduOAuth {
 							
 							tcb.onSuccess(access_token, 
 									expires_in, 
-									"",
+									refresh_token,
 									"",
 									session_key, 
 									session_secret);
@@ -347,7 +316,7 @@ public final class BaiduOAuth {
 		params.putString("scope", scope);
 		params.putString("response_type", "device_code");
 		
-		URL url = Util.encodeURLParams(oauthURL + "/device/code", params);
+		URL url = Util.encodeURLParams(deviceCodeURL, params);
 		final TokenCallback tcb = cb;
 		final String ak = apiKey;
 		final String sk = secretKey;
@@ -368,47 +337,9 @@ public final class BaiduOAuth {
 							String vfUrl = ret.has("verification_url")
 									? ret.getString("verification_url")
 									: "";
-							String qcUrl = ret.has("qrcode_url")
-									? ret.getString("qrcode_url")
-									: "";
-							String expired = ret.has("expires_in")
-									? ret.getString("expires_in")
-									: "";
-							String interval = ret.has("interval")
-									? ret.getString("interval")
-									: "";
-							Log.d(TAG,  "vfUrl = " + vfUrl);
-							Log.d(TAG,  "qcUrl = " + qcUrl);
-							Log.d(TAG,  "userCode = " + userCode);
 							
-							NotificationManager nmgr 
-								= (NotificationManager) mCtx.getSystemService(Context.NOTIFICATION_SERVICE);
-							Notification noti = null;
-							
-							if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
-							
-								noti = new Notification.Builder(mCtx)
-										.setContentTitle(userCode)
-										.setContentText(userCode)
-										.setSmallIcon(R.drawable.ic_launcher)
-										.build();
-							}else if(
-									Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB 
-									&& 
-									Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN)
-							{
-								noti = new Notification.Builder(mCtx)
-									.setContentTitle(userCode)
-									.setContentText(userCode)
-									.setSmallIcon(R.drawable.ic_launcher)
-									.getNotification();
-							}else{
-								noti = new Notification();
-								noti.icon = R.drawable.ic_launcher;
-								noti.setLatestEventInfo(mCtx, userCode, userCode, null);
-							}
-							nmgr.notify("baiduOAuth_user_code", 0, noti);
-							verifyUserCode(userCode, vfUrl, qcUrl, tcb, deviceCode, ak, sk);							
+							verifyUserCode(userCode, vfUrl, tcb, deviceCode, ak, sk);							
+						
 						}catch(JSONException e){
 							e.printStackTrace();
 						}
@@ -439,7 +370,6 @@ public final class BaiduOAuth {
 	
 	private void verifyUserCode(
 			String userCode, String verifyUrl, /* input userCode into the verifyUrl */ 
-			String qcodeUrl, /* scan the qcode in the qcodeUrl */
 			TokenCallback cb,
 			String deviceCode,
 			String apiKey,
@@ -489,7 +419,7 @@ public final class BaiduOAuth {
 		params.putString("client_id", apiKey);
 		params.putString("client_secret", secretKey);
 		
-		URL url = Util.encodeURLParams(oauthURL + "/token", params);
+		URL url = Util.encodeURLParams(tokenURL, params);
 		
 		final TokenCallback tcb = cb;
 		MuteTask t = new MuteTask(url, new MuteTask.Callback() {
@@ -545,11 +475,86 @@ public final class BaiduOAuth {
 		t.runAsync();
 	}
 	
+	/**
+	 * 
+	 * @param apiKey
+	 * @param secretKey
+	 * @param scope - 用户授权, 平台授权
+	 * @param cb
+	 */
 	public void validateByDevice(
 			String apiKey, 
 			String secretKey,
 			String scope, 
 			TokenCallback cb){
 		getDeviceUserCode(apiKey, scope, cb, secretKey);
+	}
+	
+	/**
+	 * 
+	 * @param apiKey
+	 * @param secretKey
+	 * @param refreshToken
+	 * @param scope - depending on the (apiKey, secretKey, refreshToken)
+	 * @param cb
+	 */
+	public void refreshToken(
+			String apiKey,
+			String secretKey,
+			String refreshToken,
+			String scope,
+			TokenCallback cb)
+	{
+		Bundle params = new Bundle();
+		params.putString("client_id", apiKey);
+		params.putString("grant_type", "refresh_token");
+		params.putString("client_secret", secretKey);
+		params.putString("refresh_token", refreshToken);
+		params.putString("scope", scope);
+		
+		final URL requestUrl = Util.encodeURLParams(tokenURL, params);
+		
+		final TokenCallback tcb = cb;
+		MuteTask t = new MuteTask(requestUrl, new MuteTask.Callback() {
+			
+			@Override
+			public void onSuccess(JSONObject ret) {
+				try{
+					String access_token = ret.has("access_token") 
+							? ret.getString("access_token") : "";
+					long expires_in = ret.has("expires_in") 
+							? ret.getLong("expires_in") : -1;
+					String refresh_token = ret.has("refresh_token") 
+							? ret.getString("refresh_token") : "";
+					String scope = ret.has("scope") 
+							? ret.getString("scope") : "";
+					String session_key = ret.has("session_key") 
+							? ret.getString("session_key") : "";
+					String session_secret = ret.has("session_secret")
+							? ret.getString("session_secret") : "";
+					
+					tcb.onSuccess(access_token, 
+							expires_in, 
+							refresh_token, 
+							scope, 
+							session_key, 
+							session_secret);
+				}catch(JSONException e){//unless server returns a bad reply, which is impossible.
+					e.printStackTrace();
+				}
+			}
+			
+			@Override
+			public void onFail(JSONObject err, Exception localException) {
+				try{
+					String error = err.has("error") ? err.getString("error") : "";
+					String errDesp = err.has("error_description") ? err.getString("error_description") : "";
+					tcb.onFail(error, errDesp);
+				}catch(JSONException e){//unless server returns a bad reply, which is impossible.
+					e.printStackTrace();
+				}
+			}
+		});
+		t.runAsync();
 	}
 }
