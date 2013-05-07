@@ -6,6 +6,8 @@ import java.net.URL;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.baidu.util.Util;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
@@ -20,6 +22,7 @@ public final class BaiduOAuth {
 	public static final String tokenURL = oauthURL + "/token";
 	public static final String authURL = oauthURL + "/authorize";
 	public static final String deviceCodeURL = oauthURL + "/device/code";
+	public static final String DEFAULT_REDIRECT_URL="http://openapi.baidu.com/oauth/2.0/login_success";
 	
 	
 	private Context mCtx;

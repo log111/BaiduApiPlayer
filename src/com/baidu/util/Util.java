@@ -1,4 +1,4 @@
-package com.baidu.auth;
+package com.baidu.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;

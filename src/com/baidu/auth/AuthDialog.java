@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.baidu.auth.test.Debug;
+import com.baidu.util.Util;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class AuthDialog extends Activity{
@@ -25,8 +26,6 @@ public class AuthDialog extends Activity{
 	//data received for this Activity by Intent
 	public static final String REDIRECT_URL = "redirectUrl";
 	public static final String REQUEST_URL = "requestUrl";
-	
-	private static final String DEFAULT_REDIRECT_URL="http://openapi.baidu.com/oauth/2.0/login_success";
 	
 	private String mTaskId;
 	private LocalBroadcastManager mgr;
@@ -180,7 +179,7 @@ public class AuthDialog extends Activity{
 			Log.d(TAG, "url = " + url);
 			
 			if( (mRedirectUrl != null && url.startsWith(mRedirectUrl))
-					|| (url.startsWith(DEFAULT_REDIRECT_URL)) )
+					|| (url.startsWith(BaiduOAuth.DEFAULT_REDIRECT_URL)) )
 			{//OAth return the result to redirect_url
 			
 				Bundle vals = Util.decodeURLParams(url);

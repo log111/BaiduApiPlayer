@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.baidu.util.Util;
+
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
