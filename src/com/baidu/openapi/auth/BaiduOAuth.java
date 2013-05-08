@@ -1,4 +1,4 @@
-package com.baidu.auth;
+package com.baidu.openapi.auth;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -6,7 +6,7 @@ import java.net.URL;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.baidu.util.Util;
+import com.baidu.openapi.util.Util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -277,7 +277,10 @@ public final class BaiduOAuth {
 									? ret.getLong("expires_in") : -1;
 							String refresh_token = ret.has("refresh_token")
 									? ret.getString("refresh_token")
-									: "";		
+									: "";
+							String scope = ret.has("scope")
+									? ret.getString("scope")
+									: "";
 							String session_key = ret.has("session_key") 
 									? ret.getString("session_key") : "";
 							String session_secret = ret.has("session_secret")
@@ -286,7 +289,7 @@ public final class BaiduOAuth {
 							tcb.onSuccess(access_token, 
 									expires_in, 
 									refresh_token,
-									"",
+									scope,
 									session_key, 
 									session_secret);
 						}catch(JSONException e){//unless server returns a bad reply, which is impossible.

@@ -1,4 +1,4 @@
-package com.baidu.auth.test;
+package com.baidu.openapi.test;
 
 import android.os.Bundle;
 import android.util.Log;

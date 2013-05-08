@@ -1,4 +1,4 @@
-package com.baidu.map;
+package com.baidu.openapi.lbs;
 
 import java.util.Date;
 

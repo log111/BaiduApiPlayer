@@ -1,4 +1,4 @@
-package com.baidu.map;
+package com.baidu.openapi.lbs;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -10,8 +10,8 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
-import com.baidu.auth.MuteTask;
-import com.baidu.util.URLBuilder;
+import com.baidu.openapi.auth.MuteTask;
+import com.baidu.openapi.util.URLBuilder;
 
 public class LBSManager {
 	
@@ -45,7 +45,7 @@ public class LBSManager {
 	
 	public void saveBoxAsync(DataBox box){
 		
-		URLBuilder builder = URLBuilder.getInstance()
+		URLBuilder builder = new URLBuilder()
 				.setBaseUrl(boxAPI)
 				.appendQuery("method", "create");
 		builder.appendQuery("name", box.chineseName)
@@ -76,8 +76,13 @@ public class LBSManager {
 
 				@Override
 				public void onSuccess(JSONObject ret) {
-					// TODO Auto-generated method stub
-					
+					try{
+						int status = ret.has("status") ? ret.getInt("status") : -1;
+						String msg = ret.has("message") ? ret.getString("message") : "";
+						Log.d(TAG, "status code: " + status + " message: " + msg);
+					}catch(JSONException e){
+						e.printStackTrace();
+					}
 				}
 
 				@Override

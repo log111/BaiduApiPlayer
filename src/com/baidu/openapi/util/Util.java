@@ -1,4 +1,4 @@
-package com.baidu.util;
+package com.baidu.openapi.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;

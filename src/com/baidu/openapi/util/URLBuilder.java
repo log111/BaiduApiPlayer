@@ -1,4 +1,4 @@
-package com.baidu.util;
+package com.baidu.openapi.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -16,7 +16,6 @@ public class URLBuilder {
 	}
 	
 	private static URLBuilder builder;
-	private static Object mLock = new Object();
 	
 	private String mProto; //
 	private String mAuthority;
@@ -29,13 +28,9 @@ public class URLBuilder {
 	private StringBuilder mQuery;
 	private String mRef;
 	
-	public static URLBuilder getInstance(){
-		synchronized(mLock){
-			if(builder == null){
-				builder = new URLBuilder();
-			}
-			return builder;
-		}
+	public URLBuilder(){
+		mPath = new StringBuilder();
+		mQuery = new StringBuilder();
 	}
 	
 	public URLBuilder setProtocol(String protocol){

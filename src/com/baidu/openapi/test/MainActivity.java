@@ -1,24 +1,31 @@
-package com.baidu.auth.test;
+package com.baidu.openapi.test;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
-import com.baidu.auth.BaiduOAuth;
-import com.baidu.auth.BaiduOAuth.TokenCallback;
-import com.baidu.auth.R;
+import com.baidu.openapi.R;
+import com.baidu.openapi.auth.BaiduOAuth;
+import com.baidu.openapi.auth.BaiduOAuth.TokenCallback;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnItemSelectedListener {
 
 	private static final String TAG = "MainActivity";
 	
 	private BaiduOAuth mOAuth;
+	
+	private String mSelectedAuthType;
 	
 	private Button validateByAuchCodeButton;
 	private Button refreshButton;
@@ -38,8 +45,7 @@ public class MainActivity extends Activity {
 					apiKey, 
 					secretKey, 
 					redirectUrl,
-					null,
-					//"basic", 
+					mSelectedAuthType,
 					"", 
 					new BaiduOAuth.TokenCallback(){
 
@@ -77,14 +83,14 @@ public class MainActivity extends Activity {
 	private void implicitGrantValidation(){
 		final String apiKey = getString(R.string.api_key);
 		final String secretKey = getString(R.string.secret_key);
-		try{
-			final URL redirectUrl = new URL("http://www.example.com/oauth_redirect");
+		//try{
+			//final URL redirectUrl = new URL("http://www.example.com/oauth_redirect");
 			mOAuth.validateByImplicitGrant(
 					apiKey, 
 					secretKey, 
 					//redirectUrl,
 					null,
-					"basic",
+					mSelectedAuthType,
 					new BaiduOAuth.TokenCallback()
 			{
 				@Override
@@ -108,9 +114,10 @@ public class MainActivity extends Activity {
 					Log.d(TAG, "errCode=" + ret[0] + " errMsg=" + ret[1]);
 				}			
 			});
+			/*
         }catch(MalformedURLException e){
 			e.printStackTrace();
-		}
+		}*/
 	}
 	
 	private void clientCredentialValidation(){
@@ -120,7 +127,7 @@ public class MainActivity extends Activity {
 		mOAuth.validateByCredential(
 				apiKey, 
 				secretKey, 
-				"", //cannot be basic
+				mSelectedAuthType, //cannot be basic
 				new BaiduOAuth.TokenCallback(){
 
 					@Override
@@ -159,7 +166,7 @@ public class MainActivity extends Activity {
 		mOAuth.validateByDevice(
 				apiKey, 
 				secretKey, 
-				"basic", 
+				mSelectedAuthType, 
 				new TokenCallback(){
 
 					@Override
@@ -201,7 +208,7 @@ public class MainActivity extends Activity {
 				apiKey, 
 				secretKey, 
 				mRefreshToken,
-				"basic", 
+				mSelectedAuthType, 
 				new BaiduOAuth.TokenCallback(){
 
 			@Override
@@ -234,6 +241,16 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         
         mOAuth = new BaiduOAuth(this);
+        
+        Spinner spinner = (Spinner) findViewById(R.id.authorizationList);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+             R.array.authTypeArray, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
         
         validateByAuchCodeButton = 
         		(Button) findViewById(R.id.validateByAuchCode);
@@ -288,6 +305,17 @@ public class MainActivity extends Activity {
 					deviceValidation();
 				}
 			});
+       
+       Button lbsButton = (Button) findViewById(R.id.lbsButton);
+       lbsButton.setOnClickListener(
+    		new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View arg0) {
+					Intent i = new Intent();
+					startActivity(i);
+				}
+			});
     }
 
 
@@ -297,5 +325,20 @@ public class MainActivity extends Activity {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
+	@Override
+	public void onItemSelected(AdapterView<?> view, View arg1, int arg2,
+			long arg3) {
+		Log.d(TAG, "onItemSelected ent");
+		mSelectedAuthType = (String) view.getSelectedItem();
+		Log.d(TAG, mSelectedAuthType);
+		Log.d(TAG, "onItemSelected ret");
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		Log.d(TAG, "onNothingSelected ent");
+		Log.d(TAG, "onNothingSelected ret");
+	}
     
 }

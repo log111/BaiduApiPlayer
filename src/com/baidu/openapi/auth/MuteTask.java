@@ -1,4 +1,4 @@
-package com.baidu.auth;
+package com.baidu.openapi.auth;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,11 +10,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.AsyncTask;
-//import android.util.Log;
+import android.util.Log;
 
 public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 	
-	//private static final String TAG = "MuteTask";
+	private static final String TAG = "MuteTask";
 
 	private URL mUrl;
 	private Callback mCallback;
@@ -94,7 +94,7 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 			
 			try{
 				JSONObject obj = new JSONObject(sb.toString());
-				//Log.d(TAG, obj.toString());
+				Log.d(TAG, obj.toString());
 				
 				return obj;
 			}catch(JSONException e){

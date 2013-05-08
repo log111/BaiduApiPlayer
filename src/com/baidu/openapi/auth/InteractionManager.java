@@ -1,10 +1,10 @@
-package com.baidu.auth;
+package com.baidu.openapi.auth;
 
 import java.net.URL;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.baidu.util.Util;
+import com.baidu.openapi.util.Util;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;

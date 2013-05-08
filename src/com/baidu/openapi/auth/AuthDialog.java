@@ -1,4 +1,4 @@
-package com.baidu.auth;
+package com.baidu.openapi.auth;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -15,8 +15,9 @@ import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.baidu.auth.test.Debug;
-import com.baidu.util.Util;
+import com.baidu.openapi.R;
+import com.baidu.openapi.test.Debug;
+import com.baidu.openapi.util.Util;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class AuthDialog extends Activity{
