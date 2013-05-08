@@ -307,12 +307,14 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 			});
        
        Button lbsButton = (Button) findViewById(R.id.lbsButton);
+       final Activity me = this;
        lbsButton.setOnClickListener(
     		new View.OnClickListener() {
 				
 				@Override
 				public void onClick(View arg0) {
 					Intent i = new Intent();
+					i.setClass(me.getApplicationContext(), LBSTestActivity.class);
 					startActivity(i);
 				}
 			});

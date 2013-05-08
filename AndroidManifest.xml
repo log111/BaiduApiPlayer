@@ -17,22 +17,14 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.baidu.openapi.test.MainActivity"
+            android:name=".test.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".map.lbs.test.MainActivity">
-            <!--  
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            -->            
-        </activity>
+        <activity android:name=".test.LBSTestActivity"></activity>
         <activity android:name=".auth.AuthDialog"></activity>
     </application>
 

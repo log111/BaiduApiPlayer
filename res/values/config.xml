@@ -5,5 +5,6 @@
     <string name="secret_key">POleME6Zb5yhjmaghoilL24CQWzMxeRT</string>
     <string name="baidu_user">gnohgnol@163.com</string>
     <string name="baidu_password">lh@818</string>
-
+    <string name="map_api_key">A62ddeaf71b1122c98761b93abf18ded</string>
+    <string name="map_secret_key">baidu</string>
 </resources>

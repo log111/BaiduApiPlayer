@@ -17,11 +17,13 @@ public class LBSTestActivity extends Activity {
 		
 		setContentView(R.layout.lbs_test_activity);
 		
-		mgr = new LBSManager(getString(R.string.api_key));
-        
+		mgr = new LBSManager(
+				getString(R.string.map_api_key),
+				getString(R.string.map_secret_key)
+			);
+		
         DataBox box = new DataBox();
-        box.chineseName = "百度";
-        box.englishName = "baidu";
+        box.chineseName = "test";
         mgr.saveBoxAsync(box);
 	}
 }

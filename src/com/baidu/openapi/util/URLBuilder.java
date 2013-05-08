@@ -102,4 +102,12 @@ public class URLBuilder {
 		
 		return new URL(url.toString());
 	}
+	
+	public String getUri(){
+		if(mFile != null){
+			return mFile;
+		}else{
+			return mPath.toString() + "?" + mQuery.toString();
+		}
+	}
 }
