@@ -3,7 +3,16 @@
 
     <string name="app_name">BaiduApiPlayer</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    
+    <string-array name="openAPIArray">
+        <item>Baidu OAuth API</item>
+        <item>Baidu Map API</item>
+    </string-array>
+    
+    <string-array name="baiduMapAPI">
+        <item>Place API</item>
+        <item>LBS API</item>
+    </string-array>
     
     <!-- auth test -->
     <string-array name="authTypeArray">
@@ -24,4 +33,18 @@
 
     <!-- lbs test -->
     <string name="lbsButton">LBS test</string>
+    
+    <!-- Map place API test -->
+    <string-array name="searchRangeArray">
+        <item>城市内搜索</item>
+        <item>矩形区域内搜索</item>
+        <item>圆形区域内搜索</item>
+    </string-array>
+    
+    <string name="searchRange">搜索范围</string>
+    <string name="searchQuery">搜索关键字</string>
+    <string name="resultDetail">返回结果详细程度</string>
+    <string name="resultPageRecordNumber">每页结果的记录数</string>
+    <string name="resultPageNumber">结果页的页码</string>
+    <string name="searchButtonLabel">搜索</string>
 </resources>

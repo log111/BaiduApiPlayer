@@ -68,7 +68,7 @@ public class LBSManager {
 			md.update(msg.getBytes());
 			
 			String sn = new BigInteger(1, md.digest()).toString(16);
-			params.putString("sn", sn);
+			//params.putString("sn", sn);
 			
 		}catch(UnsupportedEncodingException e){
 			e.printStackTrace();
@@ -142,10 +142,8 @@ public class LBSManager {
 					}
 				}
 				
-			}, 
-			//"applicatoin/json",
+			},
 			null,
-			//null
 			new MuteTask.WriteHook(){
 
 				@Override
@@ -166,7 +164,7 @@ public class LBSManager {
 					String body = builder.toString();
 					Log.d(TAG, body);
 					out.write(body.getBytes());
-				}				
+				}			
 			});
 			task.runAsync();
 		}catch(MalformedURLException e){

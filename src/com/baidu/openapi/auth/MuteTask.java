@@ -34,7 +34,7 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 	}
 	
 	public MuteTask(URL url, Callback cb){
-		this(url, cb, null, null);
+		this(url, cb, "application/octet-stream", null);
 	}
 	
 	public MuteTask(URL url, Callback cb, String bodyMimeType, WriteHook hook){

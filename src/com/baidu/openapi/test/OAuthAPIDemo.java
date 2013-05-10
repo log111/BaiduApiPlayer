@@ -4,7 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -19,7 +18,7 @@ import com.baidu.openapi.R;
 import com.baidu.openapi.auth.BaiduOAuth;
 import com.baidu.openapi.auth.BaiduOAuth.TokenCallback;
 
-public class MainActivity extends Activity implements OnItemSelectedListener {
+public class OAuthAPIDemo extends Activity implements OnItemSelectedListener {
 
 	private static final String TAG = "MainActivity";
 	
@@ -238,7 +237,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.oauth_api_demo);
         
         mOAuth = new BaiduOAuth(this);
         
@@ -303,19 +302,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 				@Override
 				public void onClick(View v) {
 					deviceValidation();
-				}
-			});
-       
-       Button lbsButton = (Button) findViewById(R.id.lbsButton);
-       final Activity me = this;
-       lbsButton.setOnClickListener(
-    		new View.OnClickListener() {
-				
-				@Override
-				public void onClick(View arg0) {
-					Intent i = new Intent();
-					i.setClass(me.getApplicationContext(), LBSTestActivity.class);
-					startActivity(i);
 				}
 			});
     }

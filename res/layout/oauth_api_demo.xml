@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity" >
+    tools:context=".OAuthAPIDemo" >
     
     <Spinner
             android:id="@+id/authorizationList"
@@ -34,11 +34,5 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/validateByDevice" />
-    <Button 
-        android:id="@+id/lbsButton" 
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/lbsButton"/>
-
-    
+        
 </LinearLayout>

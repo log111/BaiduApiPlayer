@@ -16,16 +16,20 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity
-            android:name=".test.MainActivity"
+        
+        <activity android:name=".auth.AuthDialog"></activity>
+        
+        <activity android:name=".test.BaiduOpenAPIDemo"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".test.LBSTestActivity"></activity>
-        <activity android:name=".auth.AuthDialog"></activity>
+        <activity android:name=".test.OAuthAPIDemo" ></activity>
+        <activity android:name=".test.MapAPIDemo" ></activity>
+        <activity android:name=".test.PlaceAPIDemo"></activity>
+        <activity android:name=".test.LBSAPIDemo"></activity>
     </application>
 
 </manifest>
