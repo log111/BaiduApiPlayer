@@ -9,6 +9,8 @@ import java.net.URLEncoder;
 
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.baidu.openapi.auth.MuteTask;
 import com.baidu.openapi.map.Place.Filter.Order;
 
@@ -88,21 +90,25 @@ public class Place {
 			int pageSize,
 			int pageNumber)
 	{
-		StringBuilder postBody = new StringBuilder("ak=").append(ak);
+		StringBuilder queryString = new StringBuilder("ak=").append(ak);
 		
 		try{
-			postBody.append("&q=").append(URLEncoder.encode(query, "UTF-8"));
+			queryString.append("&q=").append(URLEncoder.encode(query, "UTF-8"));
 		}catch(UnsupportedEncodingException e){
 			e.printStackTrace();
 		}
 		
 		switch(range.type){
 			case REGION:
-				postBody.append("&region=")
-					.append(range.RegionName);
+				try{
+					queryString.append("&region=")
+						.append(URLEncoder.encode(range.RegionName, "UTF-8"));
+				}catch(UnsupportedEncodingException e){
+					e.printStackTrace();
+				}
 				break;
 			case BOUNDS:
-				postBody.append("&bounds=")
+				queryString.append("&bounds=")
 					.append(range.squareBounds[0])
 					.append(",")
 					.append(range.squareBounds[1])
@@ -112,7 +118,7 @@ public class Place {
 					.append(range.squareBounds[3]);
 				break;
 			case LOCATION:
-				postBody.append("&location=")
+				queryString.append("&location=")
 					.append(range.circle[0])
 					.append("&radius=")
 					.append(range.circle[1]);
@@ -185,24 +191,40 @@ public class Place {
 			filterBuf.append(filter.hasGroupon ? "|groupon:1" : "|groupon:0");
 			filterBuf.append(filter.hasDiscount ? "|discount:1" : "|discount:0");			
 		
-			postBody.append("&").append(filterBuf.toString());
+			queryString.append("&").append(filterBuf.toString());
 		}
 		
 		if(scope == ResultDetail.CORSE){
-			postBody.append("&scope=1");
+			queryString.append("&scope=1");
 		}else{
-			postBody.append("&scope=2");
+			queryString.append("&scope=2");
 		}
 		
-		postBody.append("&output=json");
-		postBody.append("&page_size=").append(pageSize);
-		postBody.append("&page_number=").append(pageNumber);
+		queryString.append("&output=json");
+		queryString.append("&page_size=").append(pageSize);
+		queryString.append("&page_number=").append(pageNumber);
 		
 		try{
+			URL url = new URL(placeAPI + "/search?" + queryString.toString());
 			
-			URL url = new URL(placeAPI + "/search");
+			MuteTask t = new MuteTask(url, 
+					new MuteTask.Callback() {
+				
+						@Override
+						public void onSuccess(JSONObject ret) {
+							
+						}
+						
+						@Override
+						public void onFail(JSONObject err, Exception localException) {
+						}
+					}
+			);
 			
-			final String body = postBody.toString();
+			/*URL url = new URL(placeAPI + "/search");
+			
+			//final String body = queryString.toString();
+			//Log.d("Place", body);
 			
 			MuteTask t = new MuteTask(url, new MuteTask.Callback() {
 				
@@ -225,7 +247,7 @@ public class Place {
 					out.write(body.getBytes());
 				}
 			});
-			
+			*/
 			t.runAsync();
 		
 		}catch(MalformedURLException e){
@@ -272,7 +294,7 @@ public class Place {
 					
 				}
 			},
-			"application/octet-stream",
+			null,
 			new MuteTask.WriteHook(){
 
 				@Override

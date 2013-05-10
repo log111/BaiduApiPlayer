@@ -1,10 +1,13 @@
 package com.baidu.openapi.auth;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.zip.GZIPInputStream;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +40,10 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 		this(url, cb, "application/octet-stream", null);
 	}
 	
+	public MuteTask(URL url, Callback cb, String bodyMimeType){
+		this(url, cb, bodyMimeType, null);
+	}
+	
 	public MuteTask(URL url, Callback cb, String bodyMimeType, WriteHook hook){
 		mUrl = url;
 		mCallback = cb;
@@ -57,14 +64,39 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 		execute((Void)null);
 	}
 	
+	private String processStream(InputStream is) throws IOException{
+		
+		InputStreamReader reader = new InputStreamReader(is);
+		
+		int bufLen = 2048;
+		char[] buffer = new char[bufLen];
+		StringBuilder sb = new StringBuilder();
+		int len = reader.read(buffer, 0, bufLen);
+		if(len > 0){
+			sb.append(buffer, 0, len);
+			len = reader.read(buffer, 0, bufLen);
+		}
+		reader.close();
+		return sb.toString();
+	}
+	
 	@Override
 	protected JSONObject doInBackground(Void... params) {
 		HttpURLConnection conn = mConn;
 		try{
 			if(null == conn){
 				conn = (HttpURLConnection)mUrl.openConnection();
-				conn.setRequestMethod("POST");
 				conn.setDoInput(true);
+				
+				conn.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
+				conn.setRequestProperty("Connection", "keep-alive");
+				
+				if(mWriteHook != null){
+					conn.setRequestMethod("POST");
+					conn.setDoOutput(true);
+				}else{
+					conn.setRequestMethod("GET");
+				}
 			}
 			conn.setRequestProperty("Content-Type", contentType);
 			
@@ -74,31 +106,38 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 			}
 			
 			int respCode = conn.getResponseCode();
-			InputStreamReader reader = null;
+			InputStream is = null;
 			
 			if(HttpURLConnection.HTTP_OK == respCode){
-				reader = new InputStreamReader(conn.getInputStream());
+				
+				is = conn.getInputStream();
 			}else{
 				remoteErrorOccurred = true;
-				reader = new InputStreamReader(conn.getErrorStream());
+				is = conn.getErrorStream();
 			}
-			int bufLen = 2048;
-			char[] buffer = new char[bufLen];
-			StringBuilder sb = new StringBuilder();
-			int len = reader.read(buffer, 0, bufLen);
-			if(len > 0){
-				sb.append(buffer, 0, len);
-				len = reader.read(buffer, 0, bufLen);
-			}
-			reader.close();
 			
+			String encoding = conn.getHeaderField("Content-Encoding");
+			String respBody = null;
+			
+			if("gzip".equals(encoding)){
+			
+				GZIPInputStream zis = new GZIPInputStream(new BufferedInputStream(is));
+				try {
+				    respBody = processStream(zis);
+				}finally {
+				     zis.close();
+				}
+			}else{
+				respBody = processStream(is);
+			}
 			try{
-				JSONObject obj = new JSONObject(sb.toString());
-				Log.d(TAG, obj.toString());
-				
-				return obj;
+				if(respBody != null){
+					JSONObject obj = new JSONObject(respBody);
+					Log.d(TAG, respBody);
+					return obj;
+				}
 			}catch(JSONException e){
-				//Log.d(TAG, sb.toString());
+				Log.d(TAG, respBody);
 				e.printStackTrace();
 				localExp = e;
 			}
@@ -125,5 +164,4 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 			mCallback.onFail(null, localExp);
 		}
 	}
-
 }

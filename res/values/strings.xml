@@ -48,6 +48,15 @@
     
     <string name="searchRange">搜索范围</string>
     <string name="searchQuery">搜索关键字</string>
+    <string name="searchRegion">城市</string>
+    <string name="squareBounds">矩形搜索区</string>
+    <string name="circleBounds">圆形搜索区</string>
+    <string name="leftbottom">矩形左上角</string>
+    <string name="righttop">矩形右上角</string>
+    <string name="circleCenter">圆心</string>
+    <string name="circleRadius">圆半径</string>
+    <string name="lattitude">纬度</string>
+    <string name="longitude">经度</string>
     <string name="resultDetail">返回结果详细程度</string>
     <string name="resultPageRecordNumber">每页结果的记录数</string>
     <string name="resultPageNumber">结果页的页码</string>
