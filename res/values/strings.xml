@@ -41,6 +41,11 @@
         <item>圆形区域内搜索</item>
     </string-array>
     
+    <string-array name="resultDetail">
+        <item>粗糙</item>
+        <item>详细</item>
+    </string-array>
+    
     <string name="searchRange">搜索范围</string>
     <string name="searchQuery">搜索关键字</string>
     <string name="resultDetail">返回结果详细程度</string>
