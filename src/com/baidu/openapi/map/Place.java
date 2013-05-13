@@ -1,12 +1,20 @@
 package com.baidu.openapi.map;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONObject;
 
 import android.util.Log;
@@ -204,6 +212,7 @@ public class Place {
 		queryString.append("&page_size=").append(pageSize);
 		queryString.append("&page_number=").append(pageNumber);
 		
+		/*
 		try{
 			URL url = new URL(placeAPI + "/search?" + queryString.toString());
 			
@@ -248,11 +257,29 @@ public class Place {
 				}
 			});
 			*/
+			/*
 			t.runAsync();
 		
 		}catch(MalformedURLException e){
 			e.printStackTrace();
 		}
+		*/
+	}
+	
+	private String processStream(InputStream is) throws IOException{
+		
+		InputStreamReader reader = new InputStreamReader(is);
+		
+		int bufLen = 2048;
+		char[] buffer = new char[bufLen];
+		StringBuilder sb = new StringBuilder();
+		int len = reader.read(buffer, 0, bufLen);
+		if(len != -1){
+			sb.append(buffer, 0, len);
+			len = reader.read(buffer, 0, bufLen);
+		}
+		reader.close();
+		return sb.toString();
 	}
 	
 	public void detail(String poiUid, ResultDetail detail){
