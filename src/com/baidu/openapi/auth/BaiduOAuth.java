@@ -216,8 +216,6 @@ public final class BaiduOAuth {
 				long expires_in = ret.containsKey("expires_in") 
 						? Long.parseLong(ret.getString("expires_in"))
 						: -1;
-				String refresh_token = ret.containsKey("refresh_token") 
-						? ret.getString("refresh_token") : "";
 				String scope = ret.containsKey("scope") 
 						? ret.getString("scope") : "";
 				String session_key = ret.containsKey("session_key") 
@@ -227,8 +225,8 @@ public final class BaiduOAuth {
 				
 				tcb.onSuccess(access_token, 
 						expires_in, 
-						refresh_token, 
-						scope, 
+						scope,
+						"",
 						session_key, 
 						session_secret);
 			}
