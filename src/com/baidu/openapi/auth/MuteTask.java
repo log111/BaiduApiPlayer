@@ -52,12 +52,11 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 		contentType = bodyMimeType;
 	}
 	
-	public MuteTask(HttpURLConnection conn, Callback cb, String bodyMimeType, WriteHook hook){
+	public MuteTask(HttpURLConnection conn, Callback cb, WriteHook hook){
 		mConn = conn;
 		mCallback = cb;
 		remoteErrorOccurred = false;
 		mWriteHook = hook;
-		contentType = bodyMimeType;
 	}
 	
 	public void runAsync(){
@@ -97,8 +96,8 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 				}else{
 					conn.setRequestMethod("GET");
 				}
+				conn.setRequestProperty("Content-Type", contentType);
 			}
-			conn.setRequestProperty("Content-Type", contentType);
 			
 			if(mWriteHook != null){
 				OutputStream out = conn.getOutputStream();
