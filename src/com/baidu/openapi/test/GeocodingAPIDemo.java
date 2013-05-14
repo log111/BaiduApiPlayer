@@ -48,7 +48,7 @@ public class GeocodingAPIDemo extends Activity {
 			        String city = cityBox.getText().toString().trim();
 			        if(! address.isEmpty() && !city.isEmpty()){
 			        
-				        geocoder.decode(address, city, new Geocoding.Callback() {
+				        geocoder.addressToGeolocation(address, city, new Geocoding.Callback() {
 							
 							@Override
 							public void onSuccess(JSONObject ret) {
@@ -62,7 +62,20 @@ public class GeocodingAPIDemo extends Activity {
 						});
 			        }
 			    }else{//to address
-			    	//TODO
+			    	float latitude = Float.valueOf(latBox.getText().toString());
+			    	float longitude = Float.valueOf(lngBox.getText().toString());
+			    	geocoder.geolocationToAddress(latitude, longitude, new Geocoding.Callback() {
+						
+						@Override
+						public void onSuccess(JSONObject ret) {
+							Log.d(TAG, ret.toString());
+						}
+						
+						@Override
+						public void onFail(int errorCode, String errorMsg) {
+							Log.d(TAG, "error code: " + errorCode);
+						}
+					});
 			    }
 			}
 		});
