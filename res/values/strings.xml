@@ -61,4 +61,7 @@
     <string name="resultPageRecordNumber">每页结果的记录数</string>
     <string name="resultPageNumber">结果页的页码</string>
     <string name="searchButtonLabel">搜索</string>
+    
+    <!-- Map geocoding API test -->
+    <string name="addressLabel"></string>
 </resources>

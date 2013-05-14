@@ -344,7 +344,6 @@ public class Place {
 		}catch(MalformedURLException e){
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public void detail(String poiUid, ResultDetail detail, Callback cb){
