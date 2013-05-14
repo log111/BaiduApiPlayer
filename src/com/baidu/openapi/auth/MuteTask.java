@@ -136,7 +136,7 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 					return obj;
 				}
 			}catch(JSONException e){
-				//Log.d(TAG, respBody);
+				Log.d(TAG, respBody);
 				e.printStackTrace();
 				localExp = e;
 			}

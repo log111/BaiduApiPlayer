@@ -17,7 +17,6 @@ public class Geocoding {
 	
 	public static interface Callback{
 		void onSuccess(JSONObject ret);
-		void onSuccess(JSONArray ret);
 		void onFail(int errorCode, String errorMsg);
 	}
 	
@@ -27,7 +26,7 @@ public class Geocoding {
 		ak = apiKey;
 	}
 	
-	public void search(String address, 
+	public void decode(String address, 
 			String city,
 			Callback cb)
 	{
@@ -53,10 +52,8 @@ public class Geocoding {
 							try{
 								int status = ret.has("status") ? ret.getInt("status") : 0;
 								if(0 == status){
-									JSONArray arr = ret.has("results") ? ret.getJSONArray("results") : null;
-									myCB.onSuccess(arr);
+									myCB.onSuccess(ret);
 								}else{
-									String errorMsg = ret.has("message") ? ret.getString("message") : "";
 									/*
 									if(status > 10){
 										if(status/100 == 2){
@@ -65,7 +62,7 @@ public class Geocoding {
 											errorMsg = statusToMessage[7];
 										}
 									}*/
-									myCB.onFail(status, errorMsg);
+									myCB.onFail(status, "");
 								}
 							}catch(JSONException e){
 								e.printStackTrace();

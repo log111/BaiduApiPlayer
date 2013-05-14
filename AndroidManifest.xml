@@ -29,6 +29,7 @@
         <activity android:name=".test.OAuthAPIDemo" ></activity>
         <activity android:name=".test.MapAPIDemo" ></activity>
         <activity android:name=".test.PlaceAPIDemo"></activity>
+        <activity android:name=".test.GeocodingAPIDemo"></activity>
         <activity android:name=".test.LBSAPIDemo"></activity>
     </application>
 

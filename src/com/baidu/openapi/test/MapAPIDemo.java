@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.baidu.openapi.R;
+import com.baidu.openapi.map.Geocoding;
 
 public class MapAPIDemo extends ListActivity {
 	
@@ -45,8 +46,12 @@ public class MapAPIDemo extends ListActivity {
 		intentMap.put(openAPI[0], i);
 		
 		i = new Intent();
-		i.setClass(appCtx, LBSAPIDemo.class);
+		i.setClass(appCtx, GeocodingAPIDemo.class);
 		intentMap.put(openAPI[1], i);
+		
+		i = new Intent();
+		i.setClass(appCtx, LBSAPIDemo.class);
+		intentMap.put(openAPI[2], i);
 	}
 	
 	@Override

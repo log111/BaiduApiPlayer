@@ -11,6 +11,7 @@
     
     <string-array name="baiduMapAPI">
         <item>Place API</item>
+        <item>Geocoding API</item>
         <item>LBS API</item>
     </string-array>
     
@@ -63,5 +64,8 @@
     <string name="searchButtonLabel">搜索</string>
     
     <!-- Map geocoding API test -->
-    <string name="addressLabel"></string>
+    <string name="addressLabel">街道</string>
+    <string name="cityLabel">城市</string>
+    <string name="addressToCoordination">地址转换成坐标</string>
+    <string name="coordinationToAddress">坐标转换成地址</string>
 </resources>
