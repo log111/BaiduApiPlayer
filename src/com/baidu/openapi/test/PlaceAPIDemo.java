@@ -3,9 +3,15 @@ package com.baidu.openapi.test;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import android.app.Activity;
+import android.app.ListActivity;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -54,7 +60,7 @@ public class PlaceAPIDemo extends Activity{
 		switch(mRange.type){
 			case REGION:
 			{
-				mRange.RegionName = regionBox.getText().toString().trim();
+				mRange.regionName = regionBox.getText().toString().trim();
 				break;
 			}
 			case BOUNDS:
@@ -195,8 +201,55 @@ public class PlaceAPIDemo extends Activity{
 			@Override
 			public void onClick(View arg0) {
 				getData();
-				placeAPI.search(mKeyword, mRange, mScope, mFilter, pageSize, pageNumber);
+				Intent i = new Intent();
+				i.putExtra("keyword", mKeyword)
+					.putExtra("range", mRange)
+					.putExtra("scope", mScope)
+					.putExtra("filter", mFilter)
+					.putExtra("ps", pageSize)
+					.putExtra("pn", pageNumber);
+				placeAPI.search(
+						mKeyword, mRange, mScope, mFilter, pageSize, pageNumber,
+						new Place.Callback(){
+
+							@Override
+							public void onSuccess(JSONObject ret) {
+								Log.d("PlaceAPIDemo", ret.toString());
+							}
+
+							@Override
+							public void onFail(int errorCode, String errorMsg) {
+								Log.d("PlaceAPIDemo", "error: " + errorMsg);
+							}
+
+							@Override
+							public void onSuccess(JSONArray ret) {
+								Log.d("PlaceAPIDemo", ret.toString());
+							}
+							
+						});
 			}
 		});
+	}
+	
+	class POIList extends ListActivity{
+		@Override
+		protected void onCreate(Bundle savedInstanceState) {
+			
+			super.onCreate(savedInstanceState);
+			
+			Intent data = getIntent();
+			data.getStringExtra("keyword");
+			data.getIntExtra("ps", 10);
+			/*
+			setListAdapter(
+					new ArrayAdapter<String>(
+							POIList.this,
+							android.R.layout.simple_list_item_1, 
+							titleList.toArray(new String[0])
+					)
+				);
+				*/
+		}
 	}
 }

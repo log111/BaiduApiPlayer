@@ -7,12 +7,29 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.baidu.openapi.auth.MuteTask;
 import com.baidu.openapi.map.Place.Filter.Order;
 
 public class Place {
+	public static final String[] statusToMessage
+		= new String[]{
+		"OK", //status == 0 
+		"", 
+		"Request parameter invalide",//status == 2 
+		"Request verify failure", //status == 3
+		"Quota failure", //status == 4
+		"App key not exist or illegal", //status == 5
+		"No permission", //status == 2xx
+		"Quota error" //status == 3xx
+	};
+	
 	private static final String placeAPI = "http://api.map.baidu.com/place/v2";
 	
 	public static enum ResultDetail{
@@ -20,11 +37,53 @@ public class Place {
 		DETAIL
 	}
 	
-	public static class SearchRange{
+	public static class SearchRange implements Parcelable {
 		public SearchType type;
 		public double[] squareBounds;//four 
-		public String RegionName;
+		public String regionName;
 		public double[] circle;//0: center, 1: radius
+		
+		public SearchRange(){
+			type = SearchType.REGION;
+			squareBounds = new double[4];
+			regionName = "";
+			circle = new double[2];
+		}
+		
+		@Override
+		public int describeContents() {
+			return 0;
+		}
+		
+		@Override
+		public void writeToParcel(Parcel out, int arg1) {
+			
+			out.writeInt(type.ordinal());
+			out.writeDoubleArray(squareBounds);
+			out.writeString(regionName);
+			out.writeDoubleArray(circle);
+		}
+		
+		public static final Parcelable.Creator<SearchRange> CREATEOR
+			= new Creator<Place.SearchRange>() {
+				
+				@Override
+				public SearchRange[] newArray(int size) {
+					return new SearchRange[size];
+				}
+				
+				@Override
+				public SearchRange createFromParcel(Parcel in) {
+					
+					SearchRange sr = new SearchRange();
+					sr.type = SearchType.values()[in.readInt()];
+					in.readDoubleArray(sr.squareBounds);
+					sr.regionName = in.readString();
+					in.readDoubleArray(sr.circle);
+					
+					return sr;
+				}
+			};
 	}
 	
 	public static enum SearchType{
@@ -33,7 +92,7 @@ public class Place {
 		LOCATION //circle search
 	}
 	
-	public static class Filter{
+	public static class Filter implements Parcelable{
 		
 		public enum Key{
 			HOTEL_DEFAULT, 
@@ -65,6 +124,46 @@ public class Place {
 		public Order sortOrder;
 		public boolean hasGroupon;
 		public boolean hasDiscount;
+		
+		@Override
+		public int describeContents() {
+			return 0;
+		}
+		@Override
+		public void writeToParcel(Parcel out, int flags) {
+			out.writeInt(filterKey.ordinal());
+			out.writeInt(sortOrder.ordinal());
+			out.writeBooleanArray(new boolean[]{hasGroupon, hasDiscount});
+		}
+		
+		public static final Parcelable.Creator<Filter> CREATOR
+			= new Creator<Place.Filter>() {
+				
+				@Override
+				public Filter[] newArray(int size) {
+					return new Filter[size];
+				}
+				
+				@Override
+				public Filter createFromParcel(Parcel in) {
+					
+					Filter f = new Filter();
+					f.filterKey = Key.values()[in.readInt()];
+					f.sortOrder = Order.values()[in.readInt()];
+					boolean[] ba = new boolean[2];
+					in.readBooleanArray(ba);
+					f.hasGroupon = ba[0];
+					f.hasDiscount = ba[1];
+					
+					return f;
+				}
+			};
+	}
+	
+	public static interface Callback{
+		void onSuccess(JSONObject ret);
+		void onSuccess(JSONArray ret);
+		void onFail(int errorCode, String errorMsg);
 	}
 	
 	private String ak;
@@ -73,12 +172,12 @@ public class Place {
 		ak = apiKey;
 	}
 	
-	public void search(String query, SearchRange range, ResultDetail scope){
-		search(query, range, scope, null, 10, 0);
+	public void search(String query, SearchRange range, ResultDetail scope, Callback cb){
+		search(query, range, scope, null, 10, 0, cb);
 	}
 	
-	public void search(String query, SearchRange range, ResultDetail scope, Filter filter){
-		search(query, range, scope, filter, 10, 0);
+	public void search(String query, SearchRange range, ResultDetail scope, Filter filter, Callback cb){
+		search(query, range, scope, filter, 10, 0, cb);
 	}
 	
 	public void search(String query, 
@@ -86,7 +185,8 @@ public class Place {
 			ResultDetail scope,
 			Filter filter,
 			int pageSize,
-			int pageNumber)
+			int pageNumber,
+			Callback cb)
 	{
 		StringBuilder queryString = new StringBuilder("ak=").append(ak);
 		
@@ -100,7 +200,7 @@ public class Place {
 			case REGION:
 				try{
 					queryString.append("&region=")
-						.append(URLEncoder.encode(range.RegionName, "UTF-8"));
+						.append(URLEncoder.encode(range.regionName, "UTF-8"));
 				}catch(UnsupportedEncodingException e){
 					e.printStackTrace();
 				}
@@ -204,17 +304,37 @@ public class Place {
 		
 		try{
 			URL url = new URL(placeAPI + "/search?" + queryString.toString());
+			final Callback myCB = cb;
 			
 			MuteTask t = new MuteTask(url, 
 					new MuteTask.Callback() {
 				
 						@Override
 						public void onSuccess(JSONObject ret) {
-							
+							try{
+								int status = ret.has("status") ? ret.getInt("status") : 0;
+								if(0 == status){
+									JSONArray arr = ret.has("results") ? ret.getJSONArray("results") : null;
+									myCB.onSuccess(arr);
+								}else{
+									String errorMsg = ret.has("message") ? ret.getString("message") : "";
+									if(status > 10){
+										if(status/100 == 2){
+											errorMsg = statusToMessage[6];
+										}else if(status/100 == 3){
+											errorMsg = statusToMessage[7];
+										}
+									}
+									myCB.onFail(status, errorMsg);
+								}
+							}catch(JSONException e){
+								e.printStackTrace();
+							}
 						}
 						
 						@Override
 						public void onFail(JSONObject err, Exception localException) {
+							//no need
 						}
 					}
 			);
@@ -227,7 +347,7 @@ public class Place {
 		
 	}
 	
-	public void detail(String poiUid, ResultDetail detail){
+	public void detail(String poiUid, ResultDetail detail, Callback cb){
 		
 		StringBuilder postBody = new StringBuilder();
 		
@@ -251,19 +371,36 @@ public class Place {
 			URL url = new URL(placeAPI + "/detail");
 			
 			final String body = postBody.toString();
+			final Callback myCB = cb;
 			
 			MuteTask t = new MuteTask(url, new MuteTask.Callback() {
 				
 				@Override
 				public void onSuccess(JSONObject ret) {
-					// TODO Auto-generated method stub
-					
+					try{
+						int status = ret.has("status") ? ret.getInt("status") : 0;
+						if(0 == status){
+							JSONObject obj = ret.has("result") ? ret.getJSONObject("result") : null;
+							myCB.onSuccess(obj);
+						}else{
+							String errorMsg = ret.has("message") ? ret.getString("message") : "";
+							if(status > 10){
+								if(status/100 == 2){
+									errorMsg = statusToMessage[6];
+								}else if(status/100 == 3){
+									errorMsg = statusToMessage[7];
+								}
+							}
+							myCB.onFail(status, errorMsg);
+						}
+					}catch(JSONException e){
+						e.printStackTrace();
+					}
 				}
 				
 				@Override
 				public void onFail(JSONObject err, Exception localException) {
-					// TODO Auto-generated method stub
-					
+					//no need
 				}
 			},
 			null,
