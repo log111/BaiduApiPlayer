@@ -1,20 +1,17 @@
 package com.baidu.openapi.auth;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.zip.GZIPInputStream;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -74,7 +71,7 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 		char[] buffer = new char[bufLen];
 		StringBuilder sb = new StringBuilder();
 		int len = reader.read(buffer, 0, bufLen);
-		if(len != -1){
+		while(len != -1){
 			sb.append(buffer, 0, len);
 			len = reader.read(buffer, 0, bufLen);
 		}
@@ -85,38 +82,11 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 	@Override
 	protected JSONObject doInBackground(Void... params) {
 		
-		//HttpClient hc = new DefaultHttpClient();
-		AndroidHttpClient client = AndroidHttpClient.newInstance("AppleWebKit/537.31");
-		HttpGet req = new HttpGet(mUrl.toString());
-		try{
-			HttpResponse resp = client.execute(req);
-			HttpEntity entity = resp.getEntity();
-			if(entity != null){
-				InputStream is = AndroidHttpClient.getUngzippedContent(entity);
-				try{
-					String json = processStream(is);
-					Log.d("Place", json);
-					return new JSONObject(json);
-				}finally{
-					is.close();
-				}
-			}
-		}catch(ClientProtocolException e){
-			e.printStackTrace();
-		}catch(IOException e){
-			e.printStackTrace();
-		}catch(JSONException e){
-			e.printStackTrace();
-		}
-		/*
 		HttpURLConnection conn = mConn;
 		try{
 			if(null == conn){
 				conn = (HttpURLConnection)mUrl.openConnection();
 				conn.setDoInput(true);
-				
-				conn.setRequestProperty("Accept-Encoding", "gzip,deflate,sdch");
-				conn.setRequestProperty("Connection", "keep-alive");
 				
 				if(mWriteHook != null){
 					conn.setRequestMethod("POST");
@@ -178,7 +148,6 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 				conn.disconnect();
 			}
 		}
-		*/
 		return null;
 	}
 	
