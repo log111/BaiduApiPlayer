@@ -1,4 +1,4 @@
-package com.baidu.openapi.lbs;
+package com.baidu.openapi.map.lbs;
 
 public class POIMeta {
 	

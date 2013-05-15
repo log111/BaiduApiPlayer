@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import com.baidu.openapi.R;
-import com.baidu.openapi.lbs.DataBox;
-import com.baidu.openapi.lbs.LBSManager;
+import com.baidu.openapi.map.lbs.DataBox;
+import com.baidu.openapi.map.lbs.LBSManager;
 
 public class LBSAPIDemo extends Activity{
 	

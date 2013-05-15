@@ -1,4 +1,4 @@
-package com.baidu.openapi.lbs;
+package com.baidu.openapi.map.lbs;
 
 import java.io.IOException;
 import java.io.OutputStream;
