@@ -5,14 +5,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
 
 import com.baidu.openapi.auth.MuteTask;
-import com.baidu.openapi.map.Place.Callback;
 
 public class Geocoding {
 	private static final String TAG = "Geocoding";
@@ -74,7 +72,7 @@ public class Geocoding {
 											errorMsg = statusToMessage[7];
 										}
 									}*/
-									myCB.onFail(status, "");
+									myCB.onFail(status, StatusCode.getMessage(status));
 								}
 							}catch(JSONException e){
 								e.printStackTrace();
@@ -147,14 +145,6 @@ public class Geocoding {
 									JSONObject obj = ret.has("result") ? ret.getJSONObject("result") : null;
 									myCB.onSuccess(obj);
 								}else{
-									/*
-									if(status > 10){
-										if(status/100 == 2){
-											errorMsg = statusToMessage[6];
-										}else if(status/100 == 3){
-											errorMsg = statusToMessage[7];
-										}
-									}*/
 									myCB.onFail(status, "");
 								}
 							}catch(JSONException e){

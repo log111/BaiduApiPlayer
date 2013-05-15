@@ -317,15 +317,7 @@ public class Place {
 									JSONArray arr = ret.has("results") ? ret.getJSONArray("results") : null;
 									myCB.onSuccess(arr);
 								}else{
-									String errorMsg = ret.has("message") ? ret.getString("message") : "";
-									if(status > 10){
-										if(status/100 == 2){
-											errorMsg = statusToMessage[6];
-										}else if(status/100 == 3){
-											errorMsg = statusToMessage[7];
-										}
-									}
-									myCB.onFail(status, errorMsg);
+									myCB.onFail(status, StatusCode.getMessage(status));
 								}
 							}catch(JSONException e){
 								e.printStackTrace();
@@ -382,15 +374,7 @@ public class Place {
 							JSONObject obj = ret.has("result") ? ret.getJSONObject("result") : null;
 							myCB.onSuccess(obj);
 						}else{
-							String errorMsg = ret.has("message") ? ret.getString("message") : "";
-							if(status > 10){
-								if(status/100 == 2){
-									errorMsg = statusToMessage[6];
-								}else if(status/100 == 3){
-									errorMsg = statusToMessage[7];
-								}
-							}
-							myCB.onFail(status, errorMsg);
+							myCB.onFail(status, StatusCode.getMessage(status));
 						}
 					}catch(JSONException e){
 						e.printStackTrace();
