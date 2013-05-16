@@ -1,4 +1,4 @@
-package com.baidu.openapi.auth;
+package com.baidu.openapi.util;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -15,9 +15,9 @@ import org.json.JSONObject;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
+public class HttpRequest extends AsyncTask<Void, Void, JSONObject> {
 	
-	private static final String TAG = "MuteTask";
+	private static final String TAG = "HttpRequest";
 
 	private URL mUrl;
 	private Callback mCallback;
@@ -36,15 +36,15 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 		void writeHttpBody(OutputStream out) throws IOException;
 	}
 	
-	public MuteTask(URL url, Callback cb){
+	public HttpRequest(URL url, Callback cb){
 		this(url, cb, "application/octet-stream", null);
 	}
 	
-	public MuteTask(URL url, Callback cb, String bodyMimeType){
+	public HttpRequest(URL url, Callback cb, String bodyMimeType){
 		this(url, cb, bodyMimeType, null);
 	}
 	
-	public MuteTask(URL url, Callback cb, String bodyMimeType, WriteHook hook){
+	public HttpRequest(URL url, Callback cb, String bodyMimeType, WriteHook hook){
 		mUrl = url;
 		mCallback = cb;
 		remoteErrorOccurred = false;
@@ -52,7 +52,7 @@ public class MuteTask extends AsyncTask<Void, Void, JSONObject> {
 		contentType = bodyMimeType;
 	}
 	
-	public MuteTask(HttpURLConnection conn, Callback cb, WriteHook hook){
+	public HttpRequest(HttpURLConnection conn, Callback cb, WriteHook hook){
 		mConn = conn;
 		mCallback = cb;
 		remoteErrorOccurred = false;

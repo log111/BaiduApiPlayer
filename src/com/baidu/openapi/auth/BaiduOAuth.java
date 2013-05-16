@@ -3,6 +3,7 @@ package com.baidu.openapi.auth;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.baidu.openapi.util.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -88,7 +89,7 @@ public final class BaiduOAuth {
 		final URL requestUrl = Util.encodeURLParams(tokenURL, params);
 		
 		final TokenCallback tcb = cb;
-		MuteTask t = new MuteTask(requestUrl, new MuteTask.Callback() {
+		HttpRequest t = new HttpRequest(requestUrl, new HttpRequest.Callback() {
 			
 			@Override
 			public void onSuccess(JSONObject ret) {
@@ -263,8 +264,8 @@ public final class BaiduOAuth {
 		final URL requestUrl = Util.encodeURLParams(tokenURL, params);
 		
 		final TokenCallback tcb = cb;
-		MuteTask t = new MuteTask(requestUrl, 
-				new MuteTask.Callback() {
+		HttpRequest t = new HttpRequest(requestUrl,
+				new HttpRequest.Callback() {
 					
 					@Override
 					public void onSuccess(JSONObject ret) {
@@ -325,9 +326,9 @@ public final class BaiduOAuth {
 		final String ak = apiKey;
 		final String sk = secretKey;
 		
-		MuteTask t = new MuteTask(
+		HttpRequest t = new HttpRequest(
 				url, 
-				new MuteTask.Callback() {
+				new HttpRequest.Callback() {
 					
 					@Override
 					public void onSuccess(JSONObject ret) {
@@ -426,7 +427,7 @@ public final class BaiduOAuth {
 		URL url = Util.encodeURLParams(tokenURL, params);
 		
 		final TokenCallback tcb = cb;
-		MuteTask t = new MuteTask(url, new MuteTask.Callback() {
+		HttpRequest t = new HttpRequest(url, new HttpRequest.Callback() {
 			
 			@Override
 			public void onSuccess(JSONObject ret) {
@@ -519,7 +520,7 @@ public final class BaiduOAuth {
 		final URL requestUrl = Util.encodeURLParams(tokenURL, params);
 		
 		final TokenCallback tcb = cb;
-		MuteTask t = new MuteTask(requestUrl, new MuteTask.Callback() {
+		HttpRequest t = new HttpRequest(requestUrl, new HttpRequest.Callback() {
 			
 			@Override
 			public void onSuccess(JSONObject ret) {

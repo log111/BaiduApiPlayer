@@ -10,13 +10,12 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import com.baidu.openapi.util.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.util.Log;
-
-import com.baidu.openapi.auth.MuteTask;
 
 public class LBSManager {
 	
@@ -115,7 +114,7 @@ public class LBSManager {
 			//final DataBox b = box;
 			
 			final Bundle p = params;
-			MuteTask task = new MuteTask(url, new MuteTask.Callback(){
+			HttpRequest task = new HttpRequest(url, new HttpRequest.Callback(){
 
 				@Override
 				public void onSuccess(JSONObject ret) {
@@ -144,7 +143,7 @@ public class LBSManager {
 				
 			},
 			null,
-			new MuteTask.WriteHook(){
+			new HttpRequest.WriteHook(){
 
 				@Override
 				public void writeHttpBody(OutputStream out) throws IOException {

@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import com.baidu.openapi.util.HttpRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,7 +15,6 @@ import org.json.JSONObject;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.baidu.openapi.auth.MuteTask;
 import com.baidu.openapi.map.Place.Filter.Order;
 
 public class Place {
@@ -306,8 +306,8 @@ public class Place {
 			URL url = new URL(placeAPI + "/search?" + queryString.toString());
 			final Callback myCB = cb;
 			
-			MuteTask t = new MuteTask(url, 
-					new MuteTask.Callback() {
+			HttpRequest t = new HttpRequest(url,
+					new HttpRequest.Callback() {
 				
 						@Override
 						public void onSuccess(JSONObject ret) {
@@ -364,7 +364,7 @@ public class Place {
 			final String body = postBody.toString();
 			final Callback myCB = cb;
 			
-			MuteTask t = new MuteTask(url, new MuteTask.Callback() {
+			HttpRequest t = new HttpRequest(url, new HttpRequest.Callback() {
 				
 				@Override
 				public void onSuccess(JSONObject ret) {
@@ -387,7 +387,7 @@ public class Place {
 				}
 			},
 			null,
-			new MuteTask.WriteHook(){
+			new HttpRequest.WriteHook(){
 
 				@Override
 				public void writeHttpBody(OutputStream out) throws IOException {

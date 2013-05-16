@@ -5,12 +5,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import com.baidu.openapi.util.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
-
-import com.baidu.openapi.auth.MuteTask;
 
 public class Geocoding {
 	private static final String TAG = "Geocoding";
@@ -53,8 +52,8 @@ public class Geocoding {
 			Log.d(TAG, url.toString());
 			final Callback myCB = cb;
 			
-			MuteTask t = new MuteTask(url, 
-					new MuteTask.Callback() {
+			HttpRequest t = new HttpRequest(url,
+					new HttpRequest.Callback() {
 				
 						@Override
 						public void onSuccess(JSONObject ret) {
@@ -134,8 +133,8 @@ public class Geocoding {
 			Log.d(TAG, url.toString());
 			final Callback myCB = cb;
 			
-			MuteTask t = new MuteTask(url, 
-					new MuteTask.Callback() {
+			HttpRequest t = new HttpRequest(url,
+					new HttpRequest.Callback() {
 				
 						@Override
 						public void onSuccess(JSONObject ret) {

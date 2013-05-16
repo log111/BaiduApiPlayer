@@ -4,12 +4,11 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import com.baidu.openapi.util.HttpRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.util.Log;
-
-import com.baidu.openapi.auth.MuteTask;
 
 public class IPLocation {
 	private static final String TAG = "IPLocation";
@@ -49,8 +48,8 @@ public class IPLocation {
 			Log.d(TAG, url.toString());
 			final Callback myCB = cb;
 			
-			MuteTask t = new MuteTask(url, 
-					new MuteTask.Callback() {
+			HttpRequest t = new HttpRequest(url,
+					new HttpRequest.Callback() {
 				
 						@Override
 						public void onSuccess(JSONObject ret) {
